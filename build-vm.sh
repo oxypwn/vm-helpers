@@ -1,4 +1,4 @@
-#!/bin/sh -e
+#!/bin/bash
 
 # VirtualBox VM provisioning script
 # https://github.com/ajclark/preseed/blob/master/build-vm.sh
@@ -18,40 +18,50 @@ done
 
 function create()
 {
-# Create VM, set boot order
-VBoxManage createvm --name $VMNAME --ostype $OSTYPE --register
-VBoxManage modifyvm $VMNAME --memory $RAM --boot1 dvd --cpus 1
-
-
-if [ "`hostname -s`" = stewie ]; then
-    VBoxManage modifyvm $VMNAME --nic1 bridged --bridgeadapter1 "en0: Ethernet" --nictype1 82540EM --cableconnected1 on
+if [ "`VBoxManage list vms | cut -d" " -f1 | grep $VMNAME`" ]; then
+	VBoxManage startvm "$VMNAME"
 else
-    VBoxManage modifyvm $VMNAME --nic1 bridged --bridgeadapter1 "p4p1" --nictype1 82540EM --cableconnected1 on
+
+	# Create VM, set boot order
+	VBoxManage createvm --name $VMNAME --ostype $OSTYPE --register
+	VBoxManage modifyvm $VMNAME --memory $RAM --boot1 dvd --cpus 1
+
+	# setup first interface, depends on hostname
+	if [ "`hostname -s`" = stewie ]; then
+    		VBoxManage modifyvm $VMNAME --nic1 bridged --bridgeadapter1 "en0: Ethernet" --nictype1 82540EM --cableconnected1 on
+	else
+    	VBoxManage modifyvm $VMNAME --nic1 bridged --bridgeadapter1 "p4p1" --nictype1 82540EM --cableconnected1 on
+	fi
+
+	# setup the second interface
+	VBoxManage modifyvm $VMNAME --nic2 intnet --nictype2 82540EM --cableconnected2 on
+
+	# Add hard disk
+	VBoxManage storagectl $VMNAME --name "SATA Controller" --add sata
+	VBoxManage createhd --filename ~/.VirtualBox/${VMNAME}_hdd.vdi --size 51200
+	VBoxManage storageattach $VMNAME --storagectl "SATA Controller" --port 0 --device 0 --type hdd --medium ~/.VirtualBox/${VMNAME}_hdd.vdi
+
+	# Add DVD-ROM
+	VBoxManage storagectl $VMNAME --name "IDE Controller" --add ide
+	VBoxManage storageattach $VMNAME --storagectl "IDE Controller" --port 0 --device 0 --type dvddrive --medium $ISO_LOCAL/$ISO_NAME
+
+	# Start VM
+	VBoxManage startvm $VMNAME || VBoxManage unregistervm --delete $VMNAME
 fi
-VBoxManage modifyvm $VMNAME --nic2 intnet --nictype2 82540EM --cableconnected2 on
-
-# Add hard disk
-VBoxManage storagectl $VMNAME --name "SATA Controller" --add sata
-VBoxManage createhd --filename ~/.VirtualBox/${VMNAME}_hdd.vdi --size 51200
-VBoxManage storageattach $VMNAME --storagectl "SATA Controller" --port 0 --device 0 --type hdd --medium ~/.VirtualBox/${VMNAME}_hdd.vdi
-
-# Add DVD-ROM
-VBoxManage storagectl $VMNAME --name "IDE Controller" --add ide
-VBoxManage storageattach $VMNAME --storagectl "IDE Controller" --port 0 --device 0 --type dvddrive --medium $ISO_LOCAL/$ISO_NAME
-
-# Start VM
-VBoxManage startvm $VMNAME || VBoxManage unregistervm --delete $VMNAME
 }
+
 
 function help()
 {
-    echo $"Usage: $0 <ostype> <comment>\n"
+    echo -e "usage: $0 <ostype> <comment>\n"
     echo -e "Ostypes:\n"
-    echo -e 'debian\n centos\n obsd\n'
+    echo -e " debian\n centos\n obsd\n"
 
 }
 
-if [ -z $2 ];then
+
+# Main
+if [ -z "$2" ];then
     help
     exit 1
 fi
@@ -84,9 +94,9 @@ case "$1" in
 	iso
 	create
 	;;
-    bt)
-        VMNAME=${2}
-        OSTYPE=Debian_64
+    backtrack)
+	VMNAME=${2}
+	OSTYPE=Debian_64
         RAM=1000
         ISO_REMOTE="http://ftp.halifax.rwth-aachen.de/backtrack/"
         ISO_NAME="BT5R3-GNOME-64.iso"
