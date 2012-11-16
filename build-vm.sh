@@ -1,8 +1,24 @@
 #!/bin/bash
 
-# VirtualBox VM provisioning script
+# vm-helper creates vms fast by both handling downloading of isos and letting each vm has it own template.
+# Copyright (C) <2012>  <Paul Andrew Liljenberg>
+
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+
+# You should have received a copy of the GNU General Public License
+# along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+
+# The following code is built upon
 # https://github.com/ajclark/preseed/blob/master/build-vm.sh
-# VBoxManage list ostypes | grep "ID:" | sed -e '/Family ID:/d' | awk '{ print $2}'
 
 
 
@@ -18,10 +34,11 @@ done
 
 function create()
 {
-if [ "`VBoxManage list vms | cut -d" " -f1 | grep $VMNAME`" ]; then
+if [ "`VBoxManage list vms | cut -d" " -f1 | grep "$VMNAME"`" ]; then
 	VBoxManage startvm "$VMNAME"
+elif [ "`VBoxManage list runningvms | cut -d" " -f1 | grep "$VMNAME"`" ]; then
+	VBoxManage controlvm "$VMNAME" poweroff && VBoxManage unregistervm --delete "$VMNAME"
 else
-
 	# Create VM, set boot order
 	VBoxManage createvm --name $VMNAME --ostype $OSTYPE --register
 	VBoxManage modifyvm $VMNAME --memory $RAM --boot1 dvd --cpus 1
@@ -55,7 +72,7 @@ function help()
 {
     echo -e "usage: $0 <ostype> <comment>\n"
     echo -e "Ostypes:\n"
-    echo -e " debian\n centos\n obsd\n"
+    echo -e " obsd\n debian\n centos\n obsd\n"
 
 }
 
@@ -112,5 +129,5 @@ esac
 
 
  
-python -m SimpleHTTPServer
+#python -m SimpleHTTPServer
 
