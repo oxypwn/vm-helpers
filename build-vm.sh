@@ -32,21 +32,21 @@ while [ ! -e $ISO_LOCAL/$ISO_NAME ]; do
 done
 }
 
-#function export()
-#{
-#}
+function export()
+{
+EXPORT_PATH=~/
+VBoxManage export $VMNAME --output $EXPORT_PATH$VMNAME.ova
+}
 
 
 
 function create()
 {
 BASEFOLDER=~/.VirtualBox
-HDFOLDER=$BASEFOLDER/$VMNAME
+HD_LOCAL=$BASEFOLDER/$VMNAME
 
 if [ "`VBoxManage list runningvms | cut -d" " -f1 | grep "$VMNAME"`" ]; then
-        VBoxManage controlvm "$VMNAME" poweroff && sleep 2 && VBoxManage unregistervm --delete "$VMNAME"
-elif [ "`VBoxManage list vms | cut -d" " -f1 | grep "$VMNAME"`" ]; then
-        VBoxManage startvm "$VMNAME"
+        VBoxManage controlvm "$VMNAME" poweroff && sleep 2 && VBoxManage unregistervm "$VMNAME" --delete
 else
 	# Create VM, set boot order
 	VBoxManage createvm --basefolder $BASEFOLDER --name $VMNAME --ostype $OSTYPE --register
@@ -54,7 +54,7 @@ else
 
 	# setup first interface, depends on hostname
 	if [ "`hostname -s`" = stewie ]; then
-    		VBoxManage modifyvm $VMNAME --nic1 bridged --bridgeadapter1 "en0: Ethernet (adapter 1)" --nictype1 82540EM --cableconnected1 on
+    		VBoxManage modifyvm $VMNAME --nic1 bridged --bridgeadapter1 "en0: Ethernet" --nictype1 82540EM --cableconnected1 on
 	else
 		VBoxManage modifyvm $VMNAME --nic1 bridged --bridgeadapter1 "p4p1" --nictype1 82540EM --cableconnected1 on
 	fi
@@ -63,10 +63,9 @@ else
 	VBoxManage modifyvm $VMNAME --nic2 intnet --nictype2 82540EM --cableconnected2 on
 
 	# Add hard disk
-p
 	VBoxManage storagectl $VMNAME --name "SATA Controller" --add sata
-	VBoxManage createhd --filename $HDFOLDER/${VMNAME}_hdd.vdi --size 51200
-	VBoxManage storageattach $VMNAME --storagectl "SATA Controller" --port 0 --device 0 --type hdd --medium ~/.VirtualBox/${VMNAME}_hdd.vdi
+	VBoxManage createhd --filename $HD_LOCAL/${VMNAME}_hdd.vdi --size 51200
+	VBoxManage storageattach $VMNAME --storagectl "SATA Controller" --port 0 --device 0 --type hdd --medium $HD_LOCAL/${VMNAME}_hdd.vdi
 
 	# Add DVD-ROM
 	VBoxManage storagectl $VMNAME --name "IDE Controller" --add ide
@@ -130,7 +129,11 @@ case "$1" in
         iso
         create
         ;;
-    *)
+     export)
+	export
+	VMNAME=${2}
+	;;
+	*)
 	help
 	exit 1
 esac
