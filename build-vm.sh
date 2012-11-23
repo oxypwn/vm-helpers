@@ -32,30 +32,40 @@ while [ ! -e $ISO_LOCAL/$ISO_NAME ]; do
 done
 }
 
+#function export()
+#{
+#}
+
+
+
 function create()
 {
-if [ "`VBoxManage list vms | cut -d" " -f1 | grep "$VMNAME"`" ]; then
-	VBoxManage startvm "$VMNAME"
-elif [ "`VBoxManage list runningvms | cut -d" " -f1 | grep "$VMNAME"`" ]; then
-	VBoxManage controlvm "$VMNAME" poweroff && VBoxManage unregistervm --delete "$VMNAME"
+BASEFOLDER=~/.VirtualBox
+HDFOLDER=$BASEFOLDER/$VMNAME
+
+if [ "`VBoxManage list runningvms | cut -d" " -f1 | grep "$VMNAME"`" ]; then
+        VBoxManage controlvm "$VMNAME" poweroff && sleep 2 && VBoxManage unregistervm --delete "$VMNAME"
+elif [ "`VBoxManage list vms | cut -d" " -f1 | grep "$VMNAME"`" ]; then
+        VBoxManage startvm "$VMNAME"
 else
 	# Create VM, set boot order
-	VBoxManage createvm --name $VMNAME --ostype $OSTYPE --register
+	VBoxManage createvm --basefolder $BASEFOLDER --name $VMNAME --ostype $OSTYPE --register
 	VBoxManage modifyvm $VMNAME --memory $RAM --boot1 dvd --cpus 1
 
 	# setup first interface, depends on hostname
 	if [ "`hostname -s`" = stewie ]; then
-    		VBoxManage modifyvm $VMNAME --nic1 bridged --bridgeadapter1 "en0: Ethernet" --nictype1 82540EM --cableconnected1 on
+    		VBoxManage modifyvm $VMNAME --nic1 bridged --bridgeadapter1 "en0: Ethernet (adapter 1)" --nictype1 82540EM --cableconnected1 on
 	else
-    	VBoxManage modifyvm $VMNAME --nic1 bridged --bridgeadapter1 "p4p1" --nictype1 82540EM --cableconnected1 on
+		VBoxManage modifyvm $VMNAME --nic1 bridged --bridgeadapter1 "p4p1" --nictype1 82540EM --cableconnected1 on
 	fi
 
 	# setup the second interface
 	VBoxManage modifyvm $VMNAME --nic2 intnet --nictype2 82540EM --cableconnected2 on
 
 	# Add hard disk
+p
 	VBoxManage storagectl $VMNAME --name "SATA Controller" --add sata
-	VBoxManage createhd --filename ~/.VirtualBox/${VMNAME}_hdd.vdi --size 51200
+	VBoxManage createhd --filename $HDFOLDER/${VMNAME}_hdd.vdi --size 51200
 	VBoxManage storageattach $VMNAME --storagectl "SATA Controller" --port 0 --device 0 --type hdd --medium ~/.VirtualBox/${VMNAME}_hdd.vdi
 
 	# Add DVD-ROM
