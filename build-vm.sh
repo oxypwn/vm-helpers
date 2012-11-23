@@ -34,8 +34,8 @@ done
 
 function export()
 {
-EXPORT_PATH=~/
-VBoxManage export $VMNAME --output $EXPORT_PATH$VMNAME.ova
+EXPORT_PATH=$HOME
+VBoxManage export $VMNAME --output $EXPORT_PATH/${VMNAME}.ova
 }
 
 
@@ -130,8 +130,8 @@ case "$1" in
         create
         ;;
      export)
-	export
 	VMNAME=${2}
+	export
 	;;
 	*)
 	help
