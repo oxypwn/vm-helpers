@@ -20,7 +20,8 @@
 
 # The following code is built upon
 # https://github.com/ajclark/preseed/blob/master/build-vm.sh
-
+EXPORT_PATH=$HOME
+IMPORT_PATH=$EXPORT_PATH
 
 
 which -s VBoxManage || exit 1
@@ -31,19 +32,20 @@ ISO_LOCAL=~/Downloads
 while [ ! -e $ISO_LOCAL/$ISO_NAME ]; do
     /usr/bin/curl -L $ISO_REMOTE/$ISO_NAME -o $ISO_LOCAL/$ISO_NAME
 done
+exit 0
 }
 
 function export()
 {
-EXPORT_PATH=$HOME
 VBoxManage export $VMNAME --output $EXPORT_PATH/${VMNAME}.ova
+VBoxManage unregistervm "$VMNAME" --delete
 }
 
 
 function import()
 {
-IMPORT_PATH=$HOME
 VBoxManage import $IMPORT_PATH/${VMNAME}.ova
+rm -i $IMPORT_PATH/${VMNAME}.ova
 }
 
 
