@@ -1,21 +1,22 @@
 #!/bin/bash
 
-# vm-helper creates vms fast by both handling downloading of isos and letting each vm has it own template.
-# Copyright (C) <2012>  <Paul Andrew Liljenberg>
-
-# This program is free software: you can redistribute it and/or modify
-# it under the terms of the GNU General Public License as published by
-# the Free Software Foundation, either version 3 of the License, or
-# (at your option) any later version.
-
-# This program is distributed in the hope that it will be useful,
-# but WITHOUT ANY WARRANTY; without even the implied warranty of
-# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-# GNU General Public License for more details.
-
-# You should have received a copy of the GNU General Public License
-# along with this program.  If not, see <http://www.gnu.org/licenses/>.
-
+#################################################################################################################
+# vm-helper creates vms fast by both handling downloading of isos and letting each vm has it own template.	#
+# Copyright (C) <2012>  <Paul Andrew Liljenberg>								#
+#														#
+# This program is free software: you can redistribute it and/or modify						#
+# it under the terms of the GNU General Public License as published by						#
+# the Free Software Foundation, either version 3 of the License, or						#
+# (at your option) any later version.										#
+#														#
+# This program is distributed in the hope that it will be useful,						#
+# but WITHOUT ANY WARRANTY; without even the implied warranty of						#
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the							#
+# GNU General Public License for more details.									#
+#														#
+# You should have received a copy of the GNU General Public License						#
+# along with this program.  If not, see <http://www.gnu.org/licenses/>.						#
+###############################################################################################################	#
 
 # The following code is built upon
 # https://github.com/ajclark/preseed/blob/master/build-vm.sh
@@ -36,6 +37,13 @@ function export()
 {
 EXPORT_PATH=$HOME
 VBoxManage export $VMNAME --output $EXPORT_PATH/${VMNAME}.ova
+}
+
+
+function import()
+{
+IMPORT_PATH=$HOME
+VBoxManage import $IMPORT_PATH/${VMNAME}.ova
 }
 
 
@@ -129,10 +137,14 @@ case "$1" in
         iso
         create
         ;;
-     export)
+    export)
 	VMNAME=${2}
 	export
 	;;
+    import)
+        VMNAME=${2}
+        import
+        ;;
 	*)
 	help
 	exit 1
