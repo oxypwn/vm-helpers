@@ -22,43 +22,40 @@
 # https://github.com/ajclark/preseed/blob/master/build-vm.sh
 EXPORT_PATH=$HOME
 IMPORT_PATH=$EXPORT_PATH
-
+ISO_LOCAL=~/Downloads
+BASEFOLDER=~/.VirtualBox
+HD_LOCAL=$BASEFOLDER/$VMNAME
 
 which -s VBoxManage || exit 1
 
-function iso()
+_iso()
 {
-ISO_LOCAL=~/Downloads
 while [ ! -e $ISO_LOCAL/$ISO_NAME ]; do
     /usr/bin/curl -L $ISO_REMOTE/$ISO_NAME -o $ISO_LOCAL/$ISO_NAME
 done
-exit 0
 }
 
-function export()
+_export()
 {
 VBoxManage export $VMNAME --output $EXPORT_PATH/${VMNAME}.ova
 VBoxManage unregistervm "$VMNAME" --delete
 }
 
 
-function import()
+_import()
 {
 VBoxManage import $IMPORT_PATH/${VMNAME}.ova
 rm -i $IMPORT_PATH/${VMNAME}.ova
 }
 
-function start()
+_start()
 {
 VBoxManage startvm "$VMNAME"
 }
 
 
-function create()
+_create()
 {
-BASEFOLDER=~/.VirtualBox
-HD_LOCAL=$BASEFOLDER/$VMNAME
-
 if [ "`VBoxManage list runningvms | cut -d" " -f1 | grep "$VMNAME"`" ]; then
         VBoxManage controlvm "$VMNAME" poweroff && sleep 2 && VBoxManage unregistervm "$VMNAME" --delete
 else
@@ -91,11 +88,10 @@ fi
 }
 
 
-function help()
+_help()
 {
-    echo -e "usage: $0 <ostype> <comment>\n"
-    echo -e "Ostypes:\n"
-    echo -e " obsd\n debian\n centos\n obsd\n"
+    echo -e "usage: $0 <option> <name>\n"
+    echo "obsd centos debian backtrack gentoo export import start"
 
 }
 
@@ -114,16 +110,16 @@ case "$1" in
 	RAM=256
 	ISO_REMOTE="ftp://ftp.eu.openbsd.org/pub/OpenBSD/5.2/amd64/"
 	ISO_NAME="install52.iso"
-	iso
-	create
+	_iso
+	_create
 	;;
     centos)
 	VMNAME=${2}
 	OSTYPE=RedHat_64
 	RAM=512
 	ISO=centos.iso
-	iso
-	create
+	_iso
+	_create
 	;;
     debian)
 	VMNAME=${2}
@@ -131,8 +127,8 @@ case "$1" in
 	RAM=1000
 	ISO_REMOTE="http://cdimage.debian.org/cdimage/wheezy_di_beta3/amd64/iso-cd/"
 	ISO_NAME="debian-wheezy-DI-b3-amd64-netinst.iso"
-	iso
-	create
+	_iso
+	_create
 	;;
     backtrack)
 	VMNAME=${2}
@@ -140,26 +136,35 @@ case "$1" in
         RAM=1000
         ISO_REMOTE="http://ftp.halifax.rwth-aachen.de/backtrack/"
         ISO_NAME="BT5R3-GNOME-64.iso"
-        iso
-        create
+        _iso
+        _create
         ;;
+    gentoo)
+	VMNAME=${2}
+	OSTYPE=Gentoo_64
+	RAM=2000
+	ISO_REMOTE="http://gentoo.ussg.indiana.edu//releases/amd64/12.1/"
+	ISO_NAME="livedvd-amd64-multilib-2012.1.iso"
+	_iso
+	_create
+	;;
     export)
 	VMNAME=${2}
-	export
+	_export
 	;;
     import)
         VMNAME=${2}
-        import
+        _import
         ;;
     start)
 	VMNAME=${2}
-	start
+	_start
 	;;
 	*)
-	help
+	_help
 	exit 1
 esac
-
+_help
 
 
 
