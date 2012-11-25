@@ -48,6 +48,10 @@ VBoxManage import $IMPORT_PATH/${VMNAME}.ova
 rm -i $IMPORT_PATH/${VMNAME}.ova
 }
 
+function start()
+{
+VBoxManage startvm "$VMNAME"
+}
 
 
 function create()
@@ -147,6 +151,10 @@ case "$1" in
         VMNAME=${2}
         import
         ;;
+    start)
+	VMNAME=${2}
+	start
+	;;
 	*)
 	help
 	exit 1
