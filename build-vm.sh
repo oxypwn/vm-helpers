@@ -28,33 +28,33 @@ HD_LOCAL=$BASEFOLDER/$VMNAME
 
 which -s VBoxManage || exit 1
 
-_iso()
+function iso()
 {
 while [ ! -e $ISO_LOCAL/$ISO_NAME ]; do
     /usr/bin/curl -L $ISO_REMOTE/$ISO_NAME -o $ISO_LOCAL/$ISO_NAME
 done
 }
 
-_export()
+function export()
 {
 VBoxManage export $VMNAME --output $EXPORT_PATH/${VMNAME}.ova
 VBoxManage unregistervm "$VMNAME" --delete
 }
 
 
-_import()
+function import()
 {
 VBoxManage import $IMPORT_PATH/${VMNAME}.ova
 rm -i $IMPORT_PATH/${VMNAME}.ova
 }
 
-_start()
+function start()
 {
 VBoxManage startvm "$VMNAME"
 }
 
 
-_create()
+function create()
 {
 if [ "`VBoxManage list runningvms | cut -d" " -f1 | grep "$VMNAME"`" ]; then
         VBoxManage controlvm "$VMNAME" poweroff && sleep 2 && VBoxManage unregistervm "$VMNAME" --delete
@@ -88,7 +88,7 @@ fi
 }
 
 
-_help()
+function help()
 {
     echo -e "usage: $0 <option> <name>\n"
     echo "obsd centos debian backtrack gentoo export import start"
@@ -110,16 +110,16 @@ case "$1" in
 	RAM=256
 	ISO_REMOTE="ftp://ftp.eu.openbsd.org/pub/OpenBSD/5.2/amd64/"
 	ISO_NAME="install52.iso"
-	_iso
-	_create
+	iso
+	create
 	;;
     centos)
 	VMNAME=${2}
 	OSTYPE=RedHat_64
 	RAM=512
 	ISO=centos.iso
-	_iso
-	_create
+	iso
+	create
 	;;
     debian)
 	VMNAME=${2}
@@ -127,8 +127,8 @@ case "$1" in
 	RAM=1000
 	ISO_REMOTE="http://cdimage.debian.org/cdimage/wheezy_di_beta3/amd64/iso-cd/"
 	ISO_NAME="debian-wheezy-DI-b3-amd64-netinst.iso"
-	_iso
-	_create
+	iso
+	create
 	;;
     backtrack)
 	VMNAME=${2}
@@ -136,8 +136,8 @@ case "$1" in
         RAM=1000
         ISO_REMOTE="http://ftp.halifax.rwth-aachen.de/backtrack/"
         ISO_NAME="BT5R3-GNOME-64.iso"
-        _iso
-        _create
+        iso
+        create
         ;;
     gentoo)
 	VMNAME=${2}
@@ -145,26 +145,26 @@ case "$1" in
 	RAM=2000
 	ISO_REMOTE="http://gentoo.ussg.indiana.edu//releases/amd64/12.1/"
 	ISO_NAME="livedvd-amd64-multilib-2012.1.iso"
-	_iso
-	_create
+	iso
+	create
 	;;
     export)
 	VMNAME=${2}
-	_export
+	export
 	;;
     import)
         VMNAME=${2}
-        _import
+        import
         ;;
     start)
 	VMNAME=${2}
-	_start
+	start
 	;;
 	*)
-	_help
+	help
 	exit 1
 esac
-_help
+help
 
 
 
