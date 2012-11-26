@@ -125,8 +125,8 @@ case "$1" in
 	VMNAME=${2}
 	OSTYPE=Debian_64
 	RAM=1000
-	ISO_REMOTE="http://cdimage.debian.org/cdimage/wheezy_di_beta3/amd64/iso-cd/"
-	ISO_NAME="debian-wheezy-DI-b3-amd64-netinst.iso"
+	ISO_REMOTE="http://cdimage.debian.org/cdimage/wheezy_di_beta4/amd64/iso-cd/"
+	ISO_NAME="debian-wheezy-DI-b4-amd64-netinst.iso"
 	iso
 	create
 	;;
