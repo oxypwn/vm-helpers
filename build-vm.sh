@@ -117,7 +117,8 @@ case "$1" in
 	VMNAME=${2}
 	OSTYPE=RedHat_64
 	RAM=512
-	ISO=centos.iso
+	ISO_REMOTE="ftp://ftp.sunet.se/pub/Linux/distributions/centos/6.3/isos/x86_64/"
+	ISO_NAME="CentOS-6.3-x86_64-netinstall.iso"
 	iso
 	create
 	;;
