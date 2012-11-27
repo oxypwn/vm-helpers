@@ -24,8 +24,9 @@ EXPORT_PATH=$HOME
 IMPORT_PATH=$EXPORT_PATH
 ISO_LOCAL=~/Downloads
 BASEFOLDER=~/.VirtualBox
-HD_LOCAL=$BASEFOLDER/$VMNAME
+HD_LOCAL="$BASEFOLDER"/"$VMNAME"
 LOG=/tmp/build-vm.log
+
 which -s VBoxManage || exit 1
 
 function iso()
@@ -37,7 +38,7 @@ done
 
 function export()
 {
-VBoxManage export $VMNAME --output $EXPORT_PATH/${VMNAME}.ova
+VBoxManage export "$VMNAME" --output $EXPORT_PATH/${VMNAME}.ova
 VBoxManage unregistervm "$VMNAME" --delete
 }
 
@@ -71,30 +72,30 @@ VBoxManage unregistervm "$VMNAME" --delete 2>> $LOG && echo "[*] Unregistered an
 
 # Create VM, set boot order
 echo "[*] Creating machine $VMNAME!"
-VBoxManage createvm --basefolder $BASEFOLDER --name $VMNAME --ostype $OSTYPE --register
-VBoxManage modifyvm $VMNAME --memory $RAM --boot1 dvd --cpus 1
+VBoxManage createvm --basefolder $BASEFOLDER --name "$VMNAME" --ostype $OSTYPE --register
+VBoxManage modifyvm "$VMNAME" --memory $RAM --boot1 dvd --cpus 1
 
 # setup first interface, depends on hostname
 if [ "`hostname -s`" = stewie ]; then
-   	VBoxManage modifyvm $VMNAME --nic1 bridged --bridgeadapter1 "en0: Ethernet" --nictype1 82540EM --cableconnected1 on
+   	VBoxManage modifyvm "$VMNAME" --nic1 bridged --bridgeadapter1 "en0: Ethernet" --nictype1 82540EM --cableconnected1 on
 else
-	VBoxManage modifyvm $VMNAME --nic1 bridged --bridgeadapter1 "p4p1" --nictype1 82540EM --cableconnected1 on
+	VBoxManage modifyvm "$VMNAME" --nic1 bridged --bridgeadapter1 "p4p1" --nictype1 82540EM --cableconnected1 on
 fi
 
 # setup the second interface
-VBoxManage modifyvm $VMNAME --nic2 intnet --nictype2 82540EM --cableconnected2 on
+VBoxManage modifyvm "$VMNAME" --nic2 intnet --nictype2 82540EM --cableconnected2 on
 
 # Add hard disk
-VBoxManage storagectl $VMNAME --name "SATA Controller" --add sata
-VBoxManage createhd --filename $HD_LOCAL/${VMNAME}_hdd.vdi --size 51200
-VBoxManage storageattach $VMNAME --storagectl "SATA Controller" --port 0 --device 0 --type hdd --medium $HD_LOCAL/${VMNAME}_hdd.vdi
+VBoxManage storagectl "$VMNAME" --name "SATA Controller" --add sata
+VBoxManage createhd --filename $HD_LOCAL/"${VMNAME}"_hdd.vdi --size 51200
+VBoxManage storageattach "$VMNAME" --storagectl "SATA Controller" --port 0 --device 0 --type hdd --medium $HD_LOCAL/"${VMNAME}"_hdd.vdi
 
 # Add DVD-ROM
-VBoxManage storagectl $VMNAME --name "IDE Controller" --add ide
-VBoxManage storageattach $VMNAME --storagectl "IDE Controller" --port 0 --device 0 --type dvddrive --medium $ISO_LOCAL/$ISO_NAME
+VBoxManage storagectl "$VMNAME" --name "IDE Controller" --add ide
+VBoxManage storageattach "$VMNAME" --storagectl "IDE Controller" --port 0 --device 0 --type dvddrive --medium $ISO_LOCAL/$ISO_NAME
 
 # Start VM
-VBoxManage startvm $VMNAME || VBoxManage unregistervm --delete $VMNAME
+VBoxManage startvm "$VMNAME" || VBoxManage unregistervm --delete "$VMNAME"
 }
 
 
