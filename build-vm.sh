@@ -52,7 +52,7 @@ function start()
 VBoxManage startvm "$VMNAME"
 }
 
-function kill_single()
+function killsingle()
 {
 # Poweroff and delete vm.
 VBoxManage controlvm "$VMNAME" poweroff 2>> $LOG && echo "[*] Powered off $VMNAME!" || echo "[*] $VMNAME is not running..."  2>> $LOG
@@ -61,7 +61,7 @@ VBoxManage unregistervm "$VMNAME" --delete 2>> $LOG && echo "[*] Unregistered an
 }
 
 
-function kill_range()
+function killrange()
 {
 # Poweroff and delete vm.
 VBoxManage controlvm "$VMNAME $NUM" poweroff 2>> $LOG && echo "[*] Powered off $VMNAME $NUM!" || echo "[*] $VMNAME $NUM is not running..."  2>> $LOG
@@ -72,7 +72,7 @@ VBoxManage unregistervm "$VMNAME $NUM" --delete 2>> $LOG && echo "[*] Unregister
 
 
 
-function create_single()
+function createsingle()
 {
 HD_LOCAL="$BASEFOLDER"/"$VMNAME"
 
@@ -93,8 +93,8 @@ VBoxManage modifyvm "$VMNAME" --nic2 intnet --nictype2 82540EM --cableconnected2
 
 # Add hard disk
 VBoxManage storagectl "$VMNAME" --name "SATA Controller" --add sata  1>> $LOG 2>> $ERRORS
-VBoxManage createhd --filename $HD_LOCAL/"${VMNAME}-$NUM"_hdd.vdi --size 51200  1>> $LOG 2>> $ERRORS
-VBoxManage storageattach "$VMNAME" --storagectl "SATA Controller" --port 0 --device 0 --type hdd --medium $HD_LOCAL/"${VMNAME}-$NUM"_hdd.vdi  1>> $LOG 2>> $ERRORS
+VBoxManage createhd --filename $HD_LOCAL/"${VMNAME}"_hdd.vdi --size 51200  1>> $LOG 2>> $ERRORS
+VBoxManage storageattach "$VMNAME" --storagectl "SATA Controller" --port 0 --device 0 --type hdd --medium $HD_LOCAL/"${VMNAME}"_hdd.vdi  1>> $LOG 2>> $ERRORS
 
 # Add DVD-ROM
 VBoxManage storagectl "$VMNAME" --name "IDE Controller" --add ide  1>> $LOG 2>> $ERRORS
@@ -104,7 +104,7 @@ VBoxManage storageattach "$VMNAME" --storagectl "IDE Controller" --port 0 --devi
 VBoxManage startvm "$VMNAME" || VBoxManage unregistervm --delete "$VMNAME" 
 }
 
-function create_range()
+function createrange()
 {
 HD_LOCAL="$BASEFOLDER"/"$VMNAME $NUM"
 
@@ -144,18 +144,18 @@ if [ -z $RANGE ]; then
 	# If $VMNAME is not empty ie if a vm is registerd, kill it.
 	# else create it.
 	if [  "`VBoxManage list vms | cut -d"'" -f1 | grep -oh "$VMNAME"`" ]; then
-        	kill_single
+        	killsingle
 	else
-        	create_single
+        	createsingle
 	fi
 else
 	# $RANGE is the third argument ie ./build-vm.sh centos centos -> 3 <-
 	# and will create three vms if these are not registerd else kill them.
 	for ((NUM=1;NUM<=$RANGE;NUM++)); do
 		if [  "`VBoxManage list vms | cut -d"'" -f1 | grep -oh "$VMNAME $NUM"`" ] ; then 
-        		kill_range
+        		killrange
 		else
-                	create_range
+                	createrange
 		fi
 	done
 fi
@@ -207,7 +207,7 @@ case "$1" in
 	ISO_REMOTE="http://cdimage.debian.org/cdimage/wheezy_di_beta4/amd64/iso-cd/"
 	ISO_NAME="debian-wheezy-DI-b4-amd64-netinst.iso"
 	iso
-	create_range
+	manage
 	;;
     backtrack)
 	RANGE=${3}
@@ -241,9 +241,9 @@ case "$1" in
 	VMNAME=${2}
 	start
 	;;
-     kill)
+     die)
         VMNAME=${2}
-        kill
+        killsingle
         ;;
 	*)
 	help
