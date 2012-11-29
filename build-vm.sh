@@ -49,69 +49,130 @@ rm -i $IMPORT_PATH/${VMNAME}.ova
 
 function start()
 {
-VBoxManage startvm "$VMNAME-$NUM"
+VBoxManage startvm "$VMNAME"
 }
 
-function kill()
+function kill_single()
 {
 # Poweroff and delete vm.
-VBoxManage controlvm "$VMNAME-$NUM" poweroff 2>> $LOG && echo "[*] Powered off $VMNAME-$NUM!" || echo "[*] $VMNAME-$NUM is not running..."  2>> $LOG
+VBoxManage controlvm "$VMNAME" poweroff 2>> $LOG && echo "[*] Powered off $VMNAME!" || echo "[*] $VMNAME is not running..."  2>> $LOG
 sleep 1
-VBoxManage unregistervm "$VMNAME-$NUM" --delete 2>> $LOG && echo "[*] Unregistered and deleted $VMNAME-$NUM" || echo "[*] $VMNAME-$NUM does not exist..." 
+VBoxManage unregistervm "$VMNAME" --delete 2>> $LOG && echo "[*] Unregistered and deleted $VMNAME" || echo "[*] $VMNAME does not exist..." 
 }
 
-function create()
+
+function kill_range()
 {
-HD_LOCAL="$BASEFOLDER"/"$VMNAME-$NUM"
+# Poweroff and delete vm.
+VBoxManage controlvm "$VMNAME $NUM" poweroff 2>> $LOG && echo "[*] Powered off $VMNAME $NUM!" || echo "[*] $VMNAME $NUM is not running..."  2>> $LOG
+sleep 1
+VBoxManage unregistervm "$VMNAME $NUM" --delete 2>> $LOG && echo "[*] Unregistered and deleted $VMNAME $NUM" || echo "[*] $VMNAME $NUM does not exist..."
+}
+
+
+
+
+function create_single()
+{
+HD_LOCAL="$BASEFOLDER"/"$VMNAME"
 
 # Create VM, set boot order
-echo "[*] Creating machine $VMNAME-$NUM!"
-VBoxManage createvm --basefolder $BASEFOLDER --name "$VMNAME-$NUM" --ostype $OSTYPE --register  1>> $LOG 2>> $ERRORS
-VBoxManage modifyvm "$VMNAME-$NUM" --memory $RAM --boot1 dvd --cpus 1  1>> $LOG 2>> $ERRORS
+echo "[*] Creating machine $VMNAME!"
+VBoxManage createvm --basefolder $BASEFOLDER --name "$VMNAME" --ostype $OSTYPE --register  1>> $LOG 2>> $ERRORS
+VBoxManage modifyvm "$VMNAME" --memory $RAM --boot1 dvd --cpus 1  1>> $LOG 2>> $ERRORS
 
 # setup first interface, depends on hostname
 if [ "`hostname -s`" = stewie ]; then
-   	VBoxManage modifyvm "$VMNAME-$NUM" --nic1 bridged --bridgeadapter1 "en0: Ethernet" --nictype1 82540EM --cableconnected1 on
+   	VBoxManage modifyvm "$VMNAME" --nic1 bridged --bridgeadapter1 "en0: Ethernet" --nictype1 82540EM --cableconnected1 on
 else
-	VBoxManage modifyvm "$VMNAME-$NUM" --nic1 bridged --bridgeadapter1 "p4p1" --nictype1 82540EM --cableconnected1 on
+	VBoxManage modifyvm "$VMNAME" --nic1 bridged --bridgeadapter1 "p4p1" --nictype1 82540EM --cableconnected1 on
 fi
 
 # setup the second interface
-VBoxManage modifyvm "$VMNAME-$NUM" --nic2 intnet --nictype2 82540EM --cableconnected2 on
+VBoxManage modifyvm "$VMNAME" --nic2 intnet --nictype2 82540EM --cableconnected2 on
 
 # Add hard disk
-VBoxManage storagectl "$VMNAME-$NUM" --name "SATA Controller" --add sata  1>> $LOG 2>> $ERRORS
+VBoxManage storagectl "$VMNAME" --name "SATA Controller" --add sata  1>> $LOG 2>> $ERRORS
 VBoxManage createhd --filename $HD_LOCAL/"${VMNAME}-$NUM"_hdd.vdi --size 51200  1>> $LOG 2>> $ERRORS
-VBoxManage storageattach "$VMNAME-$NUM" --storagectl "SATA Controller" --port 0 --device 0 --type hdd --medium $HD_LOCAL/"${VMNAME}-$NUM"_hdd.vdi  1>> $LOG 2>> $ERRORS
+VBoxManage storageattach "$VMNAME" --storagectl "SATA Controller" --port 0 --device 0 --type hdd --medium $HD_LOCAL/"${VMNAME}-$NUM"_hdd.vdi  1>> $LOG 2>> $ERRORS
 
 # Add DVD-ROM
-VBoxManage storagectl "$VMNAME-$NUM" --name "IDE Controller" --add ide  1>> $LOG 2>> $ERRORS
-VBoxManage storageattach "$VMNAME-$NUM" --storagectl "IDE Controller" --port 0 --device 0 --type dvddrive --medium $ISO_LOCAL/$ISO_NAME  1>> $LOG 2>> $ERRORS
+VBoxManage storagectl "$VMNAME" --name "IDE Controller" --add ide  1>> $LOG 2>> $ERRORS
+VBoxManage storageattach "$VMNAME" --storagectl "IDE Controller" --port 0 --device 0 --type dvddrive --medium $ISO_LOCAL/$ISO_NAME  1>> $LOG 2>> $ERRORS
 
 # Start VM
-VBoxManage startvm "$VMNAME-$NUM" || VBoxManage unregistervm --delete "$VMNAME-$NUM" 
+VBoxManage startvm "$VMNAME" || VBoxManage unregistervm --delete "$VMNAME" 
 }
 
 function create_range()
 {
-for ((NUM=1;NUM<=$RANGE;NUM++)); do
-if [ "`VBoxManage list vms | cut -d" " -f1 | grep "$VMNAME-$NUM"`" ]; then
-	kill
+HD_LOCAL="$BASEFOLDER"/"$VMNAME $NUM"
+
+# Create VM, set boot order
+echo "[*] Creating machine $VMNAME $NUM!"
+VBoxManage createvm --basefolder $BASEFOLDER --name "$VMNAME $NUM" --ostype $OSTYPE --register  1>> $LOG 2>> $ERRORS
+VBoxManage modifyvm "$VMNAME $NUM" --memory $RAM --boot1 dvd --cpus 1  1>> $LOG 2>> $ERRORS
+
+# setup first interface, depends on hostname
+if [ "`hostname -s`" = stewie ]; then
+        VBoxManage modifyvm "$VMNAME $NUM" --nic1 bridged --bridgeadapter1 "en0: Ethernet" --nictype1 82540EM --cableconnected1 on
 else
-	create
+        VBoxManage modifyvm "$VMNAME $NUM" --nic1 bridged --bridgeadapter1 "p4p1" --nictype1 82540EM --cableconnected1 on
 fi
-done
+
+# setup the second interface
+VBoxManage modifyvm "$VMNAME $NUM" --nic2 intnet --nictype2 82540EM --cableconnected2 on
+
+# Add hard disk
+VBoxManage storagectl "$VMNAME $NUM" --name "SATA Controller" --add sata  1>> $LOG 2>> $ERRORS
+VBoxManage createhd --filename $HD_LOCAL/"${VMNAME} $NUM"_hdd.vdi --size 51200  1>> $LOG 2>> $ERRORS
+VBoxManage storageattach "$VMNAME $NUM" --storagectl "SATA Controller" --port 0 --device 0 --type hdd --medium $HD_LOCAL/"${VMNAME} $NUM"_hdd.vdi  1>> $LOG 2>> $ERRORS
+
+# Add DVD-ROM
+VBoxManage storagectl "$VMNAME $NUM" --name "IDE Controller" --add ide  1>> $LOG 2>> $ERRORS
+VBoxManage storageattach "$VMNAME $NUM" --storagectl "IDE Controller" --port 0 --device 0 --type dvddrive --medium $ISO_LOCAL/$ISO_NAME  1>> $LOG 2>> $ERRORS
+
+# Start VM
+VBoxManage startvm "$VMNAME $NUM" || VBoxManage unregistervm --delete "$VMNAME $NUM"
 }
+
+
+
+function manage()
+{
+if [ -z $RANGE ]; then
+	# If $VMNAME is not empty ie if a vm is registerd, kill it.
+	# else create it.
+	if [  "`VBoxManage list vms | cut -d"'" -f1 | grep -oh "$VMNAME"`" ]; then
+        	kill_single
+	else
+        	create_single
+	fi
+else
+	# $RANGE is the third argument ie ./build-vm.sh centos centos -> 3 <-
+	# and will create three vms if these are not registerd else kill them.
+	for ((NUM=1;NUM<=$RANGE;NUM++)); do
+		if [  "`VBoxManage list vms | cut -d"'" -f1 | grep -oh "$VMNAME $NUM"`" ] ; then 
+        		kill_range
+		else
+                	create_range
+		fi
+	done
+fi
+}
+
 
 
 function help()
 {
-    echo -e  "usage: $0 <option> <name> <number>\n"
+    echo -e "usage: $0 <option> <name> <number>"
+    echo -e "Example: ./build-vm centos centos 10 -- Create ten vms with centos as template"
+    echo -e 'Example: ./build-vm centos "centos 10" -- Unregister and terminate vm named "centos 10"\n'
     echo "obsd centos debian backtrack gentoo export import start"
 }
 
 
-if [ -z "$3" ];then
+if [ -z "$2" ];then
     help
     exit 1
 fi
@@ -136,7 +197,7 @@ case "$1" in
 	ISO_REMOTE="ftp://ftp.sunet.se/pub/Linux/distributions/centos/6.3/isos/x86_64/"
 	ISO_NAME="CentOS-6.3-x86_64-netinstall.iso"
 	iso
-	create_range
+	manage
 	;;
     debian)
 	VMNAME=${2}
@@ -149,6 +210,7 @@ case "$1" in
 	create_range
 	;;
     backtrack)
+	RANGE=${3}
 	VMNAME=${2}
 	OSTYPE=Debian_64
         RAM=1000
@@ -177,12 +239,10 @@ case "$1" in
 	;;
     start)
 	VMNAME=${2}
-	NUM=${3}
 	start
 	;;
      kill)
         VMNAME=${2}
-	NUM=${3}
         kill
         ;;
 	*)
