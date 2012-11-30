@@ -54,19 +54,39 @@ VBoxManage startvm "$VMNAME"
 
 function killsingle()
 {
-# Poweroff and delete vm.
+# Poweroff
 VBoxManage controlvm "$VMNAME" poweroff 2>> $LOG && echo "[*] Powered off $VMNAME!" || echo "[*] $VMNAME is not running..."  2>> $LOG
-sleep 1
-VBoxManage unregistervm "$VMNAME" --delete 2>> $LOG && echo "[*] Unregistered and deleted $VMNAME" || echo "[*] $VMNAME does not exist..." 
+
+# Delete
+read -p "Delete $VMNAME? [Yy]`echo $'\n> '`" -n 1 -r; echo -e '\n'
+if [[ ! $REPLY =~ ^[Yy]$ ]]; then
+	help
+	exit 1
+else
+	VBoxManage unregistervm "$VMNAME" --delete 2>> $LOG && echo "[*] Unregistered and deleted $VMNAME" || echo "[*] $VMNAME does not exist..." 
+fi
 }
 
 
 function killrange()
 {
-# Poweroff and delete vm.
-VBoxManage controlvm "$VMNAME $NUM" poweroff 2>> $LOG && echo "[*] Powered off $VMNAME $NUM!" || echo "[*] $VMNAME $NUM is not running..."  2>> $LOG
-sleep 1
-VBoxManage unregistervm "$VMNAME $NUM" --delete 2>> $LOG && echo "[*] Unregistered and deleted $VMNAME $NUM" || echo "[*] $VMNAME $NUM does not exist..."
+for ((NUM=1;NUM<=$RANGE;NUM++)); do
+	# Poweroff virtual machine
+	VBoxManage controlvm "$VMNAME $NUM" poweroff 2>> $LOG && echo "[*] Powered off $VMNAME $NUM!" || echo "[*] $VMNAME $NUM is not running..."  2>> $LOG
+done
+	
+read -p "Delete all virtual machines? [Yy]`echo $'\n> '`" -n 1 -r; echo -e '\n'
+if [[ ! $REPLY =~ ^[Yy]$ ]]; then
+       	help
+       	exit 1
+else
+	for ((NUM=1;NUM<=$RANGE;NUM++)); do
+		# Delete virtual machine
+		VBoxManage unregistervm "$VMNAME $NUM" --delete 2>> $LOG && echo "[*] Unregistered and deleted $VMNAME $NUM" || echo "[*] $VMNAME $NUM does not exist..."
+		sleep 1
+	done
+	
+fi
 }
 
 
@@ -115,9 +135,9 @@ VBoxManage modifyvm "$VMNAME $NUM" --memory $RAM --boot1 dvd --cpus 1  1>> $LOG 
 
 # setup first interface, depends on hostname
 if [ "`hostname -s`" = stewie ]; then
-        VBoxManage modifyvm "$VMNAME $NUM" --nic1 bridged --bridgeadapter1 "en0: Ethernet" --nictype1 82540EM --cableconnected1 on
+       	VBoxManage modifyvm "$VMNAME $NUM" --nic1 bridged --bridgeadapter1 "en0: Ethernet" --nictype1 82540EM --cableconnected1 on
 else
-        VBoxManage modifyvm "$VMNAME $NUM" --nic1 bridged --bridgeadapter1 "p4p1" --nictype1 82540EM --cableconnected1 on
+       	VBoxManage modifyvm "$VMNAME $NUM" --nic1 bridged --bridgeadapter1 "p4p1" --nictype1 82540EM --cableconnected1 on
 fi
 
 # setup the second interface
@@ -141,21 +161,19 @@ VBoxManage startvm "$VMNAME $NUM" || VBoxManage unregistervm --delete "$VMNAME $
 function manage()
 {
 if [ -z $RANGE ]; then
-	# If $VMNAME is not empty ie if a vm is registerd, kill it.
-	# else create it.
 	if [  "`VBoxManage list vms | cut -d"'" -f1 | grep -oh "$VMNAME"`" ]; then
         	killsingle
 	else
         	createsingle
 	fi
-else
+elif [ -n $RANGE ]; then
 	# $RANGE is the third argument ie ./build-vm.sh centos centos -> 3 <-
 	# and will create three vms if these are not registerd else kill them.
 	for ((NUM=1;NUM<=$RANGE;NUM++)); do
-		if [  "`VBoxManage list vms | cut -d"'" -f1 | grep -oh "$VMNAME $NUM"`" ] ; then 
-        		killrange
+		if [ "`VBoxManage list vms | cut -d"'" -f1 | grep -oh "$VMNAME $NUM"`" ]; then
+			killrange
 		else
-                	createrange
+			createrange
 		fi
 	done
 fi
@@ -165,8 +183,9 @@ fi
 
 function help()
 {
-    echo -e "usage: $0 <option> <name> <number>"
-    echo -e "Example: ./build-vm centos centos 10 -- Create ten vms with centos as template"
+    echo -e "\nusage: $0 <option> <name> <number>"
+    echo -e 'Example: ./build-vm centos web 10 -- Create ten vms with centos as template and "web 1" to "web 10" as name of vm'
+    echo -e 'Example: ./build-vm centos web 11 -- Terminate ten vms with centos as template and "web 1" to "web 10" as name of vm. The 11 vm wont be created.'
     echo -e 'Example: ./build-vm centos "centos 10" -- Unregister and terminate vm named "centos 10"\n'
     echo "obsd centos debian backtrack gentoo export import start"
 }
