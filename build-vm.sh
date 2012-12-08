@@ -99,7 +99,7 @@ HD_LOCAL="$BASEFOLDER"/"$VMNAME"
 
 # Create VM, set boot order
 echo "[*] Creating machine $VMNAME!"
-VBoxManage createvm --basefolder $BASEFOLDER --name "$VMNAME" --ostype $OSTYPE --register  1>> $LOG 2>> $ERRORS
+VBoxManage createvm --basefolder "$BASEFOLDER" --name "$VMNAME" --ostype $OSTYPE --register  1>> $LOG 2>> $ERRORS
 VBoxManage modifyvm "$VMNAME" --memory $RAM --boot1 dvd --cpus 1  1>> $LOG 2>> $ERRORS
 
 # setup first interface, depends on hostname
@@ -131,7 +131,7 @@ HD_LOCAL="$BASEFOLDER"/"$VMNAME $NUM"
 
 # Create VM, set boot order
 echo "[*] Creating machine $VMNAME $NUM!"
-VBoxManage createvm --basefolder $BASEFOLDER --name "$VMNAME $NUM" --ostype $OSTYPE --register  1>> $LOG 2>> $ERRORS
+VBoxManage createvm --basefolder "$BASEFOLDER" --name "$VMNAME $NUM" --ostype $OSTYPE --register  1>> $LOG 2>> $ERRORS
 VBoxManage modifyvm "$VMNAME $NUM" --memory $RAM --boot1 dvd --cpus 1  1>> $LOG 2>> $ERRORS
 
 # setup first interface, depends on hostname
