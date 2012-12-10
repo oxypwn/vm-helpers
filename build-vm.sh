@@ -189,83 +189,83 @@ fi
 
 case "$1" in
     archlinux)
->---VMNAME=${2}
->---RANGE=${3}
->---OSTYPE=ArchLinux_64
->---RAM=2000
->---ISO_REMOTE="http://ftp.lysator.liu.se/pub/archlinux/iso/2012.12.01/"
->---ISO_NAME="archlinux-2012.12.01-dual.iso"
->---iso
->---create_range
->---;; 
+    VMNAME=${2}
+    RANGE=${3}
+    OSTYPE=ArchLinux_64
+    RAM=2000
+    ISO_REMOTE="http://ftp.lysator.liu.se/pub/archlinux/iso/2012.12.01/"
+    ISO_NAME="archlinux-2012.12.01-dual.iso"
+    iso
+    create_range
+    ;; 
     obsd)
-	VMNAME=${2}
-	RANGE=${3}
-	OSTYPE=OpenBSD_64
-	RAM=256
-	ISO_REMOTE="ftp://ftp.eu.openbsd.org/pub/OpenBSD/5.2/amd64/"
-	ISO_NAME="install52.iso"
-	iso
-	create_range
-	;;
+    VMNAME=${2}
+    RANGE=${3}
+    OSTYPE=OpenBSD_64
+    RAM=256
+    ISO_REMOTE="ftp://ftp.eu.openbsd.org/pub/OpenBSD/5.2/amd64/"
+    ISO_NAME="install52.iso"
+    iso
+    create_range
+    ;;
     centos)
-	VMNAME=${2}
-	RANGE=${3}
-	OSTYPE=RedHat_64
-	RAM=512
-	ISO_REMOTE="ftp://ftp.sunet.se/pub/Linux/distributions/centos/6.3/isos/x86_64/"
-	ISO_NAME="CentOS-6.3-x86_64-netinstall.iso"
-	iso
-	manage
-	;;
+    VMNAME=${2}
+    RANGE=${3}
+    OSTYPE=RedHat_64
+    RAM=512
+    ISO_REMOTE="ftp://ftp.sunet.se/pub/Linux/distributions/centos/6.3/isos/x86_64/"
+    ISO_NAME="CentOS-6.3-x86_64-netinstall.iso"
+    iso
+    manage
+    ;;
     debian)
-	VMNAME=${2}
-	RANGE=${3}
-	OSTYPE=Debian_64
-	RAM=1000
-	ISO_REMOTE="http://cdimage.debian.org/cdimage/wheezy_di_beta4/amd64/iso-cd/"
-	ISO_NAME="debian-wheezy-DI-b4-amd64-netinst.iso"
-	iso
-	manage
-	;;
+    VMNAME=${2}
+    RANGE=${3}
+    OSTYPE=Debian_64
+    RAM=1000
+    ISO_REMOTE="http://cdimage.debian.org/cdimage/wheezy_di_beta4/amd64/iso-cd/"
+    ISO_NAME="debian-wheezy-DI-b4-amd64-netinst.iso"
+    iso
+    manage
+    ;;
     backtrack)
-	RANGE=${3}
-	VMNAME=${2}
-	OSTYPE=Debian_64
+    RANGE=${3}
+    VMNAME=${2}
+    OSTYPE=Debian_64
     RAM=1000
     ISO_REMOTE="http://ftp.halifax.rwth-aachen.de/backtrack/"
     ISO_NAME="BT5R3-GNOME-64.iso"
-	iso
-        create_range
-        ;;
+    iso
+    create_range
+    ;;
     gentoo)
-	VMNAME=${2}
-	RANGE=${3}
-	OSTYPE=Gentoo_64
-	RAM=2000
-	ISO_REMOTE="http://gentoo.ussg.indiana.edu//releases/amd64/12.1/"
-	ISO_NAME="livedvd-amd64-multilib-2012.1.iso"
-	iso
-	create_range
-	;;
+    VMNAME=${2}
+    RANGE=${3}
+    OSTYPE=Gentoo_64
+    RAM=2000
+    ISO_REMOTE="http://gentoo.ussg.indiana.edu//releases/amd64/12.1/"
+    ISO_NAME="livedvd-amd64-multilib-2012.1.iso"
+    iso
+    create_range
+    ;;
     export)
-	VMNAME=${2}
-	export
-	;;
+    VMNAME=${2}
+    export
+    ;;
     import)
-        VMNAME=${2}
-        import
-	;;
+    VMNAME=${2}
+    import
+    ;;
     start)
-	VMNAME=${2}
-	start
-	;;
+    VMNAME=${2}
+    start
+    ;;
      die)
-        VMNAME=${2}
-        killsingle
-        ;;
-	*)
-	help
-	exit 1
+    VMNAME=${2}
+    killsingle
+    ;;
+    *)
+    help
+    exit 1
 esac
 help
