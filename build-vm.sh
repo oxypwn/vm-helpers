@@ -83,8 +83,8 @@ function killrange()
         for ((NUM=1;NUM<=$RANGE;NUM++)); do
             # Delete virtual machine
 		    VBoxManage unregistervm "$VMNAME $NUM" --delete 2>> $LOG && echo "[*] Unregistered and deleted $VMNAME $NUM" || echo "[*] $VMNAME $NUM does not exist..."
-		    sleep 1
-	    done
+            sleep 1
+        done
     fi
 }
 
