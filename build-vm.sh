@@ -163,13 +163,13 @@ if [ -z $RANGE ]; then
 elif [ -n $RANGE ]; then
     # $RANGE is the third argument ie ./build-vm.sh centos centos -> 3 <-
     # and will create three vms if these are not registerd else kill them.
-	for ((NUM=1;NUM<=$RANGE;NUM++)); do
-		if [ "`VBoxManage list vms | cut -d"'" -f1 | grep -oh "$VMNAME $NUM"`" ]; then
-			killrange
-		else
-			createrange
-		fi
-	done
+    for ((NUM=1;NUM<=$RANGE;NUM++)); do
+        if [ "`VBoxManage list vms | cut -d"'" -f1 | grep -oh "$VMNAME $NUM"`" ]; then
+            killrange
+        else
+            createrange
+        fi
+    done
 fi
 }
 
