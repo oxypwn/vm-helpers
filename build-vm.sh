@@ -196,7 +196,7 @@ case "$1" in
     ISO_REMOTE="http://ftp.lysator.liu.se/pub/archlinux/iso/2012.12.01/"
     ISO_NAME="archlinux-2012.12.01-dual.iso"
     iso
-    create_range
+    manage
     ;; 
     obsd)
     VMNAME=${2}
@@ -206,7 +206,7 @@ case "$1" in
     ISO_REMOTE="ftp://ftp.eu.openbsd.org/pub/OpenBSD/5.2/amd64/"
     ISO_NAME="install52.iso"
     iso
-    create_range
+    manage
     ;;
     centos)
     VMNAME=${2}
@@ -236,7 +236,7 @@ case "$1" in
     ISO_REMOTE="http://ftp.halifax.rwth-aachen.de/backtrack/"
     ISO_NAME="BT5R3-GNOME-64.iso"
     iso
-    create_range
+    manage
     ;;
     gentoo)
     VMNAME=${2}
@@ -246,7 +246,7 @@ case "$1" in
     ISO_REMOTE="http://gentoo.ussg.indiana.edu//releases/amd64/12.1/"
     ISO_NAME="livedvd-amd64-multilib-2012.1.iso"
     iso
-    create_range
+    manage
     ;;
     export)
     VMNAME=${2}
