@@ -55,17 +55,17 @@ VBoxManage startvm "$VMNAME"
 
 function killsingle()
 {
-# Poweroff
-VBoxManage controlvm "$VMNAME" poweroff 2>> $LOG && echo "[*] Powered off $VMNAME!" || echo "[*] $VMNAME is not running..."  2>> $LOG
+    # Poweroff
+    VBoxManage controlvm "$VMNAME" poweroff 2>> $LOG && echo "[*] Powered off $VMNAME!" || echo "[*] $VMNAME is not running..."  2>> $LOG
 
-# Delete
-read -p "Delete $VMNAME? [Yy]`echo $'\n> '`" -n 1 -r; echo -e '\n'
-if [[ ! $REPLY =~ ^[Yy]$ ]]; then
-	help
-	exit 1
-else
-	VBoxManage unregistervm "$VMNAME" --delete 2>> $LOG && echo "[*] Unregistered and deleted $VMNAME" || echo "[*] $VMNAME does not exist..." 
-fi
+    # Delete
+    read -p "Delete $VMNAME? [Yy]`echo $'\n> '`" -n 1 -r; echo -e '\n'
+    if [[ ! $REPLY =~ ^[Yy]$ ]]; then
+        help
+        exit 1
+    else
+        VBoxManage unregistervm "$VMNAME" --delete 2>> $LOG && echo "[*] Unregistered and deleted $VMNAME" || echo "[*] $VMNAME does not exist..." 
+    fi
 }
 
 function killrange()
@@ -260,7 +260,7 @@ case "$1" in
     VMNAME=${2}
     start
     ;;
-     die)
+    die)
     VMNAME=${2}
     killsingle
     ;;
