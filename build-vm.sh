@@ -154,35 +154,38 @@ HD_LOCAL="$BASEFOLDER"/"$VMNAME $NUM"
 
 function manage()
 {
-if [ -z $RANGE ]; then
-	if [  "`VBoxManage list vms | cut -d"'" -f1 | grep -oh "$VMNAME"`" ]; then
-        	killsingle
-	else
-        	createsingle
-	fi
-elif [ -n $RANGE ]; then
-    # $RANGE is the third argument ie ./build-vm.sh centos centos -> 3 <-
-    # and will create three vms if these are not registerd else kill them.
-    for ((NUM=1;NUM<=$RANGE;NUM++)); do
-        if [ "`VBoxManage list vms | cut -d"'" -f1 | grep -oh "$VMNAME $NUM"`" ]; then
-            killrange
+    # Add some default variables
+    [ -z $VMNAME ] && VMNAME=${OSTYPE}
+    [ -z $RAM ] && RAM="200"
+    if [ -z $RANGE ]; then
+        if [  "`VBoxManage list vms | cut -d"'" -f1 | grep -oh "$VMNAME"`" ]; then
+            killsingle
         else
-            createrange
-        fi
-    done
-fi
+            createsingle
+    fi
+    elif [ -n $RANGE ]; then
+        # $RANGE is the third argument ie ./build-vm.sh centos centos -> 3 <-
+        # and will create three vms if these are not registerd else kill them.
+        for ((NUM=1;NUM<=$RANGE;NUM++)); do
+            if [ "`VBoxManage list vms | cut -d"'" -f1 | grep -oh "$VMNAME $NUM"`" ]; then
+                killrange
+            else
+                createrange
+            fi
+        done
+    fi
 }
 
 function help()
 {
-    echo -e "\nusage: $0 <option> <name> <number>"
+    echo -e "\nusage: $0 <option> <name> <ram> <number>"
     echo -e 'Example: ./build-vm centos web 10 -- Create ten vms with centos as template and "web 1" to "web 10" as name of vm'
     echo -e 'Example: ./build-vm centos web 11 -- Terminate ten vms with centos as template and "web 1" to "web 10" as name of vm. The 11 vm wont be created.'
     echo -e 'Example: ./build-vm centos "centos 10" -- Unregister and terminate vm named "centos 10"\n'
     echo "obsd centos debian backtrack gentoo archlinux export import start"
 }
 
-if [ -z "$2" ];then
+if [ -z "$3" ];then
     help
     exit 1
 fi
@@ -220,9 +223,9 @@ case "$1" in
     ;;
     debian)
     VMNAME=${2}
-    RANGE=${3}
+    RANGE=${4}
     OSTYPE=Debian_64
-    RAM=1000
+    RAM=${3}
     ISO_REMOTE="http://cdimage.debian.org/cdimage/wheezy_di_beta4/amd64/iso-cd/"
     ISO_NAME="debian-wheezy-DI-b4-amd64-netinst.iso"
     iso
