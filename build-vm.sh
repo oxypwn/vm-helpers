@@ -53,21 +53,6 @@ function start()
 VBoxManage startvm "$VMNAME"
 }
 
-function killsingle()
-{
-    # Poweroff
-    VBoxManage controlvm "$VMNAME" poweroff 2>> $LOG && echo "[*] Powered off $VMNAME!" || echo "[*] $VMNAME is not running..."  2>> $LOG
-
-    # Delete
-    read -p "Delete $VMNAME? [Yy]`echo $'\n> '`" -n 1 -r; echo -e '\n'
-    if [[ ! $REPLY =~ ^[Yy]$ ]]; then
-        help
-        exit 1
-    else
-        VBoxManage unregistervm "$VMNAME" --delete 2>> $LOG && echo "[*] Unregistered and deleted $VMNAME" || echo "[*] $VMNAME does not exist..." 
-    fi
-}
-
 function killrange()
 {
     for ((NUM=1;NUM<=$RANGE;NUM++)); do
@@ -86,38 +71,6 @@ function killrange()
             sleep 1
         done
     fi
-}
-
-function createsingle()
-{
-HD_LOCAL="$BASEFOLDER"/"$VMNAME"
-
-    # Create VM, set boot order
-    echo "[*] Creating machine $VMNAME!"
-    VBoxManage createvm --basefolder "$BASEFOLDER" --name "$VMNAME" --ostype $OSTYPE --register  1>> $LOG 2>> $ERRORS
-    VBoxManage modifyvm "$VMNAME" --memory $RAM --boot1 dvd --cpus 1  1>> $LOG 2>> $ERRORS
-
-    # setup first interface, depends on hostname
-    if [ "`hostname -s`" = stewie ]; then
-    	VBoxManage modifyvm "$VMNAME" --nic1 bridged --bridgeadapter1 "en0: Ethernet" --nictype1 82540EM --cableconnected1 on
-    else
-	    VBoxManage modifyvm "$VMNAME" --nic1 bridged --bridgeadapter1 "p4p1" --nictype1 82540EM --cableconnected1 on
-    fi
-
-    # setup the second interface
-    VBoxManage modifyvm "$VMNAME" --nic2 intnet --nictype2 82540EM --cableconnected2 on
-
-    # Add hard disk
-    VBoxManage storagectl "$VMNAME" --name "SATA Controller" --add sata  1>> $LOG 2>> $ERRORS
-    VBoxManage createhd --filename $HD_LOCAL/"${VMNAME}"_hdd.vdi --size 51200  1>> $LOG 2>> $ERRORS
-    VBoxManage storageattach "$VMNAME" --storagectl "SATA Controller" --port 0 --device 0 --type hdd --medium $HD_LOCAL/"${VMNAME}"_hdd.vdi  1>> $LOG 2>> $ERRORS
-
-    # Add DVD-ROM
-    VBoxManage storagectl "$VMNAME" --name "IDE Controller" --add ide  1>> $LOG 2>> $ERRORS
-    VBoxManage storageattach "$VMNAME" --storagectl "IDE Controller" --port 0 --device 0 --type dvddrive --medium $ISO_LOCAL/$ISO_NAME  1>> $LOG 2>> $ERRORS
-
-    # Start VM
-    VBoxManage startvm "$VMNAME" || VBoxManage unregistervm --delete "$VMNAME" 
 }
 
 function createrange()
@@ -158,23 +111,13 @@ function manage()
     [ -z $VMNAME ] && VMNAME=${OSTYPE}
     [ -z $RAM ] && RAM="200"
     [ -z $RANGE ] && RANGE="1"
-    if [ -z $RANGE ]; then
-        if [  "`VBoxManage list vms | cut -d"'" -f1 | grep -oh "$VMNAME"`" ]; then
-            killsingle
+    for ((NUM=1;NUM<=$RANGE;NUM++)); do
+        if [ "`VBoxManage list vms | cut -d"'" -f1 | grep -oh "$VMNAME $NUM"`" ]; then
+            killrange
         else
-            createsingle
-    fi
-    elif [ -n $RANGE ]; then
-        # $RANGE is the third argument ie ./build-vm.sh centos centos -> 3 <-
-        # and will create three vms if these are not registerd else kill them.
-        for ((NUM=1;NUM<=$RANGE;NUM++)); do
-            if [ "`VBoxManage list vms | cut -d"'" -f1 | grep -oh "$VMNAME $NUM"`" ]; then
-                killrange
-            else
-                createrange
-            fi
-        done
-    fi
+            createrange
+        fi
+    done
 }
 
 function help()
