@@ -157,6 +157,7 @@ function manage()
     # Add some default variables
     [ -z $VMNAME ] && VMNAME=${OSTYPE}
     [ -z $RAM ] && RAM="200"
+    [ -z $RANGE ] && RANGE="1"
     if [ -z $RANGE ]; then
         if [  "`VBoxManage list vms | cut -d"'" -f1 | grep -oh "$VMNAME"`" ]; then
             killsingle
