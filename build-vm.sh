@@ -129,7 +129,7 @@ function help()
     echo "obsd centos debian backtrack gentoo archlinux export import start"
 }
 
-if [ -z "$3" ];then
+if [ -z "$1" ];then
     help
     exit 1
 fi
