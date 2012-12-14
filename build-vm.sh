@@ -21,7 +21,7 @@
 # https://github.com/ajclark/preseed/blob/master/build-vm.sh
 EXPORT_PATH=$HOME
 IMPORT_PATH=$EXPORT_PATH
-ISO_LOCAL=~/Downloads
+ISO_LOCAL=/tmp
 BASEFOLDER=~/.VirtualBox
 LOG=/tmp/build-vm.log
 ERRORS=/tmp/build-vm.errors
