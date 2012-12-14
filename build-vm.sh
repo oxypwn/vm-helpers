@@ -75,8 +75,6 @@ function killrange()
 
 function createrange()
 {
-HD_LOCAL="$BASEFOLDER"/"$VMNAME $NUM"
-
     # Create VM, set boot order
     echo "[*] Creating machine $VMNAME $NUM!"
     VBoxManage createvm --basefolder "$BASEFOLDER" --name "$VMNAME $NUM" --ostype $OSTYPE --register  1>> $LOG 2>> $ERRORS
@@ -94,8 +92,8 @@ HD_LOCAL="$BASEFOLDER"/"$VMNAME $NUM"
 
     # Add hard disk
     VBoxManage storagectl "$VMNAME $NUM" --name "SATA Controller" --add sata  1>> $LOG 2>> $ERRORS
-    VBoxManage createhd --filename $HD_LOCAL/"${VMNAME} $NUM"_hdd.vdi --size 51200  1>> $LOG 2>> $ERRORS
-    VBoxManage storageattach "$VMNAME $NUM" --storagectl "SATA Controller" --port 0 --device 0 --type hdd --medium $HD_LOCAL/"${VMNAME} $NUM"_hdd.vdi  1>> $LOG 2>> $ERRORS
+    VBoxManage createhd --filename "$BASEFOLDER"/"${VMNAME} $NUM"/"${VMNAME} $NUM"_hdd.vdi --size 51200  1>> $LOG 2>> $ERRORS
+    VBoxManage storageattach "$VMNAME $NUM" --storagectl "SATA Controller" --port 0 --device 0 --type hdd --medium "$BASEFOLDER"/"${VMNAME} $NUM"/"${VMNAME} $NUM"_hdd.vdi  1>> $LOG 2>> $ERRORS
 
     # Add DVD-ROM
     VBoxManage storagectl "$VMNAME $NUM" --name "IDE Controller" --add ide  1>> $LOG 2>> $ERRORS
@@ -108,7 +106,7 @@ HD_LOCAL="$BASEFOLDER"/"$VMNAME $NUM"
 function manage()
 {
     # Add some default variables
-    [ -z $VMNAME ] && VMNAME=${OSTYPE}
+    [ -z $VMNAME ] && VMNAME="${OSTYPE}"
     [ -z $RAM ] && RAM="200"
     [ -z $RANGE ] && RANGE="1"
     for ((NUM=1;NUM<=$RANGE;NUM++)); do
