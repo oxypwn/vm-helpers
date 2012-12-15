@@ -106,11 +106,11 @@ function vboxmanage()
 function createrange()
 {
 # Safety check
-if [ $RANGE >= 5 ]; then
+if [ $RANGE -ge 5 ]; then
     read -p "Create $NUM machines? [Yy]`echo $'\n> '`" -n 1 -r; echo -e '\n'
     if [[ $REPLY =~ ^[Yy]$ ]]; then
         vboxmanage
-    elif [ $RANGE <= 5 ]; then
+    elif [ $RANGE -le 5 ]; then
         vboxmanage
     fi
 fi
