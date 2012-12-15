@@ -103,32 +103,32 @@ function vboxmanage()
     VBoxManage startvm "$VMNAME $NUM" || VBoxManage unregistervm --delete "$VMNAME $NUM"
 }
 
-function createrange()
-{
-# Safety check
-if [ $RANGE -ge 5 ]; then
-    read -p "Create $NUM machines? [Yy]`echo $'\n> '`" -n 1 -r; echo -e '\n'
-    if [[ $REPLY =~ ^[Yy]$ ]]; then
-        vboxmanage
-    elif [ $RANGE -le 5 ]; then
-        vboxmanage
-    fi
-fi
-}
 
 function manage()
 {
-    # Add some default variables
-    [ -z $VMNAME ] && VMNAME="${OSTYPE}"
-    [ -z $RAM ] && RAM="200"
-    [ -z $RANGE ] && RANGE="1"
-    for ((NUM=1;NUM<=$RANGE;NUM++)); do
-        if [ "`VBoxManage list vms | cut -d"'" -f1 | grep -oh "$VMNAME $NUM"`" ]; then
-            killrange
-        else
-            createrange
-        fi
+# Add some default variables
+[ -z $VMNAME ] && VMNAME="${OSTYPE}"
+[ -z $RAM ] && RAM="200"
+[ -z $RANGE ] && RANGE="1"
+        
+if [ "`VBoxManage list vms | cut -d"'" -f1 | grep -oh "$VMNAME $NUM"`" ]; then
+    for ((NUM=1;NUM<=$RANGE;NUM++)); do    
+         killrange
     done
+else
+    if [ $RANGE -ge 5 ]; then
+        read -p "Create $RANGE machines? [Yy]`echo $'\n> '`" -n 1 -r; echo -e '\n'
+        if [[ $REPLY =~ ^[Yy]$ ]]; then
+            for ((NUM=1;NUM<=$RANGE;NUM++)); do
+                vboxmanage
+            done
+        fi
+    elif [ $RANGE -le 5 ]; then
+        for ((NUM=1;NUM<=$RANGE;NUM++)); do
+            vboxmanage
+        done
+    fi
+fi
 }
 
 function help()
