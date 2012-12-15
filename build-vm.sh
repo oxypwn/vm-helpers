@@ -113,7 +113,13 @@ function manage()
         if [ "`VBoxManage list vms | cut -d"'" -f1 | grep -oh "$VMNAME $NUM"`" ]; then
             killrange
         else
-            createrange
+            read -p "Create $NUM machines? [Yy]`echo $'\n> '`" -n 1 -r; echo -e '\n'
+            if [[ ! $REPLY =~ ^[Yy]$ ]]; then
+                help
+                exit 1
+            else
+                createrange
+            fi
         fi
     done
 }
