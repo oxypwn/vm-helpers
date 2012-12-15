@@ -73,7 +73,7 @@ function killrange()
     fi
 }
 
-function createrange()
+function vboxmanage()
 {
     # Create VM, set boot order
     echo "[*] Creating machine $VMNAME $NUM!"
@@ -103,6 +103,19 @@ function createrange()
     VBoxManage startvm "$VMNAME $NUM" || VBoxManage unregistervm --delete "$VMNAME $NUM"
 }
 
+function createrange()
+{
+# Safety check
+if [ $RANGE >= 5 ]; then
+    read -p "Create $NUM machines? [Yy]`echo $'\n> '`" -n 1 -r; echo -e '\n'
+    if [[ $REPLY =~ ^[Yy]$ ]]; then
+        vboxmanage
+    elif [ $RANGE <= 5 ]; then
+        vboxmanage
+    fi
+fi
+}
+
 function manage()
 {
     # Add some default variables
@@ -113,13 +126,7 @@ function manage()
         if [ "`VBoxManage list vms | cut -d"'" -f1 | grep -oh "$VMNAME $NUM"`" ]; then
             killrange
         else
-            read -p "Create $NUM machines? [Yy]`echo $'\n> '`" -n 1 -r; echo -e '\n'
-            if [[ ! $REPLY =~ ^[Yy]$ ]]; then
-                help
-                exit 1
-            else
-                createrange
-            fi
+            createrange
         fi
     done
 }
