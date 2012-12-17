@@ -80,15 +80,16 @@ function vboxmanage()
     VBoxManage createvm --basefolder "$BASEFOLDER" --name "$VMNAME $NUM" --ostype $OSTYPE --register  1>> $LOG 2>> $ERRORS
     VBoxManage modifyvm "$VMNAME $NUM" --memory $RAM --boot1 dvd --cpus 1  1>> $LOG 2>> $ERRORS
 
-    # setup first interface, depends on hostname
+    # setup first DHCP enabled interface, depends on hostname
     if [ "`hostname -s`" = stewie ]; then
         VBoxManage modifyvm "$VMNAME $NUM" --nic1 bridged --bridgeadapter1 "en0: Ethernet" --nictype1 82540EM --cableconnected1 on
     else
         VBoxManage modifyvm "$VMNAME $NUM" --nic1 bridged --bridgeadapter1 "p4p1" --nictype1 82540EM --cableconnected1 on
     fi
 
-    # setup the second interface
+    # setup other interfaces
     VBoxManage modifyvm "$VMNAME $NUM" --nic2 intnet --nictype2 82540EM --cableconnected2 on
+    VBoxManage modifyvm "$VMNAME $NUM" --nic3 intnet --nictype2 82540EM --cableconnected3 on
 
     # Add hard disk
     VBoxManage storagectl "$VMNAME $NUM" --name "SATA Controller" --add sata  1>> $LOG 2>> $ERRORS
