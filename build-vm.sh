@@ -79,6 +79,7 @@ function destroy()
         VBoxManage controlvm "$vmdesc" poweroff 2>> $LOG && echo "[*] Powered off $vmdesc!" || echo "[*] $vmdesc is not running..."  2>> $LOG
         sleep 1
         VBoxManage unregistervm "$vmdesc" --delete 2>> $LOG && echo "[*] Unregistered and deleted $vmdesc" || echo "[*] $vmdesc does not exist..."
+    done    
 }
 function vboxmanage()
 {
