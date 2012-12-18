@@ -64,6 +64,7 @@ function killrange()
             # Poweroff virtual machine
             VBoxManage controlvm "$VMNAME $NUM" poweroff 2>> $LOG && echo "[*] Powered off $VMNAME $NUM!" || echo "[*] $VMNAME $NUM is not running..."  2>> $LOG
         done
+        sleep 1
         for ((NUM=1;NUM<=$RANGE;NUM++)); do
             # Delete virtual machine
             VBoxManage unregistervm "$VMNAME $NUM" --delete 2>> $LOG && echo "[*] Unregistered and deleted $VMNAME $NUM" || echo "[*] $VMNAME $NUM does not exist..."
@@ -72,6 +73,13 @@ function killrange()
     fi
 }
 
+function destroy()
+{
+    for vmdesc in `VBoxManage list vms | cut -d" " -f1`; do
+        VBoxManage controlvm "$vmdesc" poweroff 2>> $LOG && echo "[*] Powered off $vmdesc!" || echo "[*] $vmdesc is not running..."  2>> $LOG
+        sleep 1
+        VBoxManage unregistervm "$vmdesc" --delete 2>> $LOG && echo "[*] Unregistered and deleted $vmdesc" || echo "[*] $vmdesc does not exist..."
+}
 function vboxmanage()
 {
     # Create VM, set boot order
@@ -110,10 +118,11 @@ function manage()
 [ -z $VMNAME ] && VMNAME="${OSTYPE}"
 [ -z $RAM ] && RAM="200"
 [ -z $RANGE ] && RANGE="1"
- 
+
 if [ "`VBoxManage list vms | cut -d"'" -f1 | grep -oh "$VMNAME $RANGE"`" ]; then 
-         killrange
+    killrange
 else
+    # If this is not a ranged 
     if [ $RANGE -ge 5 ]; then
         read -p "Create $RANGE machines? [Yy]`echo $'\n> '`" -n 1 -r; echo -e '\n'
         if [[ $REPLY =~ ^[Yy]$ ]]; then
@@ -218,7 +227,7 @@ case "$1" in
     ;;
     die)
     VMNAME=${2}
-    killsingle
+    destroy
     ;;
     *)
     help
