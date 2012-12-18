@@ -55,22 +55,23 @@ VBoxManage startvm "$VMNAME"
 
 function killrange()
 {
-    for ((NUM=1;NUM<=$RANGE;NUM++)); do
-         # Poweroff virtual machine
-        VBoxManage controlvm "$VMNAME $NUM" poweroff 2>> $LOG && echo "[*] Powered off $VMNAME $NUM!" || echo "[*] $VMNAME $NUM is not running..."  2>> $LOG
-    done
-	
+    VBoxManage controlvm "$VMNAME $RANGE" poweroff 2>> $LOG && echo "[*] Powered off $VMNAME $RANGE!" || echo "[*] $VMNAME $RANGE is not running..."  2>> $LOG
+    VBoxManage unregistervm "$VMNAME $RANGE" --delete 2>> $LOG && echo "[*] Unregistered and deleted $VMNAME $RANGE" || echo "[*] $VMNAME $RANGE does not exist..."
     read -p "Delete all virtual machines? [Yy]`echo $'\n> '`" -n 1 -r; echo -e '\n'
-    if [[ ! $REPLY =~ ^[Yy]$ ]]; then
-        help
-        exit 1
-    else
-        for ((NUM=1;NUM<=$RANGE;NUM++)); do
-            # Delete virtual machine
-		    VBoxManage unregistervm "$VMNAME $NUM" --delete 2>> $LOG && echo "[*] Unregistered and deleted $VMNAME $NUM" || echo "[*] $VMNAME $NUM does not exist..."
-            sleep 1
-        done
-    fi
+        if [[ ! $REPLY =~ ^[Yy]$ ]]; then
+            help
+            exit 1
+        else
+            for ((NUM=1;NUM<=$RANGE;NUM++)); do
+                # Poweroff virtual machine
+                VBoxManage controlvm "$VMNAME $NUM" poweroff 2>> $LOG && echo "[*] Powered off $VMNAME $NUM!" || echo "[*] $VMNAME $NUM is not running..."  2>> $LOG
+            done
+            for ((NUM=1;NUM<=$RANGE;NUM++)); do
+                # Delete virtual machine
+                VBoxManage unregistervm "$VMNAME $NUM" --delete 2>> $LOG && echo "[*] Unregistered and deleted $VMNAME $NUM" || echo "[*] $VMNAME $NUM does not exist..."
+                sleep 1
+            done
+        fi
 }
 
 function vboxmanage()
@@ -111,8 +112,8 @@ function manage()
 [ -z $VMNAME ] && VMNAME="${OSTYPE}"
 [ -z $RAM ] && RAM="200"
 [ -z $RANGE ] && RANGE="1"
-        
-if [ "`VBoxManage list vms | cut -d"'" -f1 | grep -oh "$VMNAME $NUM"`" ]; then
+ 
+if [ "`VBoxManage list vms | cut -d"'" -f1 | grep -oh "$VMNAME $RANGE"`" ]; then
     for ((NUM=1;NUM<=$RANGE;NUM++)); do    
          killrange
     done
