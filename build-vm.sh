@@ -55,7 +55,7 @@ VBoxManage startvm "$VMNAME"
 
 function destroysingle()
 {
-    read -p "Shutdown and delete $VMNAME $NUM? [Yy]`echo $'\n> '`" -n 1 -r; echo -e '\n'
+    read -p "Shutdown and delete $VMNAME $RANGE? [Yy]`echo $'\n> '`" -n 1 -r; echo -e '\n'
     if [[ ! $REPLY =~ ^[Yy]$ ]]; then
         help
         exit 1
