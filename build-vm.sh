@@ -22,9 +22,15 @@
 EXPORT_PATH=$HOME
 IMPORT_PATH=$EXPORT_PATH
 ISO_LOCAL=/tmp
-BASEFOLDER=~/tmp/.VirtualBox
+BASEFOLDER=~/.VirtualBox
 LOG=/tmp/build-vm.log
 ERRORS=/tmp/build-vm.errors
+
+# Add some default variables
+[ -z $VMNAME ] && VMNAME="${OSTYPE}"
+[ -z $RAM ] && RAM="200"
+[ -z $RANGE ] && RANGE="1"
+
 
 which -s VBoxManage || exit 1
 
@@ -113,23 +119,24 @@ function manage()
 [ -z $RAM ] && RAM="200"
 [ -z $RANGE ] && RANGE="1"
 
-if [ "`VBoxManage list vms | cut -d'"' -f2 | grep -oh "$VMNAME $RANGE"`" ]; then 
-    destroysingle
-else
-    # If this is not a ranged 
     if [ $RANGE -ge 5 ]; then
         read -p "Create $RANGE machines? [Yy]`echo $'\n> '`" -n 1 -r; echo -e '\n'
         if [[ $REPLY =~ ^[Yy]$ ]]; then
             for ((NUM=1;NUM<=$RANGE;NUM++)); do
-                vboxmanage
+		if [ ! "`VBoxManage list vms | cut -d'"' -f2 | grep -oh "$VMNAME $NUM"`" ]; then
+               	    vboxmanage
+		fi
             done
         fi
     elif [ $RANGE -le 5 ]; then
         for ((NUM=1;NUM<=$RANGE;NUM++)); do
-            vboxmanage
+	    if [ ! "`VBoxManage list vms | cut -d'"' -f2 | grep -oh "$VMNAME $NUM"`" ]; then
+            	vboxmanage
+	    fi
         done
+    elif [ "`VBoxManage list vms | cut -d'"' -f2 | grep -oh "$VMNAME $RANGE"`" ]; then
+	destroysingle
     fi
-fi
 }
 
 function help()
