@@ -22,7 +22,7 @@
 EXPORT_PATH=$HOME
 IMPORT_PATH=$EXPORT_PATH
 ISO_LOCAL=/tmp
-BASEFOLDER=~/.VirtualBox
+BASEFOLDER=~/tmp/.VirtualBox
 LOG=/tmp/build-vm.log
 ERRORS=/tmp/build-vm.errors
 
@@ -53,32 +53,25 @@ function start()
 VBoxManage startvm "$VMNAME"
 }
 
-function killrange()
+function destroysingle()
 {
-    read -p "Delete all virtual machines? [Yy]`echo $'\n> '`" -n 1 -r; echo -e '\n'
+    read -p "Shutdown and delete $VMNAME $NUM? [Yy]`echo $'\n> '`" -n 1 -r; echo -e '\n'
     if [[ ! $REPLY =~ ^[Yy]$ ]]; then
         help
         exit 1
     else
-        for ((NUM=1;NUM<=$RANGE;NUM++)); do
-            # Poweroff virtual machine
-            VBoxManage controlvm "$VMNAME $NUM" poweroff 2>> $LOG && echo "[*] Powered off $VMNAME $NUM!" || echo "[*] $VMNAME $NUM is not running..."  2>> $LOG
-        done
+        VBoxManage controlvm "$VMNAME $RANGE" poweroff 2>> $LOG && echo "[*] Powered off $VMNAME $RANGE!" || echo "[*] $VMNAME $RANGE is not running..."  2>> $LOG
         sleep 1
-        for ((NUM=1;NUM<=$RANGE;NUM++)); do
-            # Delete virtual machine
-            VBoxManage unregistervm "$VMNAME $NUM" --delete 2>> $LOG && echo "[*] Unregistered and deleted $VMNAME $NUM" || echo "[*] $VMNAME $NUM does not exist..."
-            sleep 1
-        done
+        VBoxManage unregistervm "$VMNAME $RANGE" --delete 2>> $LOG && echo "[*] Unregistered and deleted $VMNAME $RANGE" || echo "[*] $VMNAME $RANGE does not exist..."
     fi
 }
 
-function destroy()
+function destroyall()
 {
-    for vmdesc in `VBoxManage list vms  |sed -e "s/^.*\"\(.*\)\".*$/\"\1\"/"`; do
-        VBoxManage controlvm "$vmdesc" poweroff 2>> $LOG && echo "[*] Powered off $vmdesc!" || echo "[*] $vmdesc is not running..."  2>> $LOG
+    for vmdesc in "`VBoxManage list vms  |cut -d'"' -f2`"; do
+        VBoxManage controlvm "$vmdesc" poweroff 2>> $LOG
         sleep 1
-        VBoxManage unregistervm "$vmdesc" --delete 2>> $LOG && echo "[*] Unregistered and deleted $vmdesc" || echo "[*] $vmdesc does not exist..."
+        VBoxManage unregistervm "$vmdesc" --delete 2>> $LOG
     done    
 }
 function vboxmanage()
@@ -120,8 +113,8 @@ function manage()
 [ -z $RAM ] && RAM="200"
 [ -z $RANGE ] && RANGE="1"
 
-if [ "`VBoxManage list vms | cut -d"'" -f1 | grep -oh "$VMNAME $RANGE"`" ]; then 
-    killrange
+if [ "`VBoxManage list vms | cut -d'"' -f2 | grep -oh "$VMNAME $RANGE"`" ]; then 
+    destroysingle
 else
     # If this is not a ranged 
     if [ $RANGE -ge 5 ]; then
@@ -143,8 +136,8 @@ function help()
 {
     echo -e "\nusage: $0 <option> <name> <ram> <number>"
     echo -e 'Example: ./build-vm centos web 10 -- Create ten vms with centos as template and "web 1" to "web 10" as name of vm'
-    echo -e 'Example: ./build-vm centos web 11 -- Terminate ten vms with centos as template and "web 1" to "web 10" as name of vm. The 11 vm wont be created.'
-    echo -e 'Example: ./build-vm centos "centos 10" -- Unregister and terminate vm named "centos 10"\n'
+    echo -e 'Example: ./build-vm centos web 11 -- Terminate vms named "web 11".'
+    echo -e 'Example: ./build-vm destroyall -- Terminate ALL vms."\n'
     echo "obsd centos debian backtrack gentoo archlinux export import start"
 }
 
@@ -226,9 +219,8 @@ case "$1" in
     VMNAME=${2}
     start
     ;;
-    die)
-    VMNAME=${2}
-    destroy
+    destroyall)
+    destroyall
     ;;
     *)
     help
