@@ -124,7 +124,7 @@ function manage()
         if [[ $REPLY =~ ^[Yy]$ ]]; then
             for ((NUM=1;NUM<=$RANGE;NUM++)); do
 		if [ ! "`VBoxManage list vms | cut -d'"' -f2 | grep -oh "$VMNAME $NUM"`" ]; then
-               	    vboxmanage
+            vboxmanage
 		fi
             done
         fi
@@ -135,7 +135,7 @@ function manage()
 	    fi
         done
     elif [ "`VBoxManage list vms | cut -d'"' -f2 | grep -oh "$VMNAME $RANGE"`" ]; then
-	destroysingle
+        destroysingle
     fi
 }
 
