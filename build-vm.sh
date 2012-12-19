@@ -75,7 +75,7 @@ function killrange()
 
 function destroy()
 {
-    for vmdesc in `VBoxManage list vms -l |grep  "Hardware UUID:"| cut -d" " -f5`; do
+    for vmdesc in `VBoxManage list vms  |sed -e "s/^.*\"\(.*\)\".*$/\"\1\"/"`; do
         VBoxManage controlvm "$vmdesc" poweroff 2>> $LOG && echo "[*] Powered off $vmdesc!" || echo "[*] $vmdesc is not running..."  2>> $LOG
         sleep 1
         VBoxManage unregistervm "$vmdesc" --delete 2>> $LOG && echo "[*] Unregistered and deleted $vmdesc" || echo "[*] $vmdesc does not exist..."
