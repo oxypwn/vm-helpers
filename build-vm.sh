@@ -1,6 +1,6 @@
 # -*- mode: sh -*-
 #!/bin/bash
-
+#set -x
 # vm-helper creates vms fast by both handling downloading of isos and letting each vm has it own template.	
 # Copyright (C) <2012>  <Paul Andrew Liljenberg>
 #
@@ -74,14 +74,17 @@ function destroysingle()
 
 function destroyall()
 {
-    for vmdesc in "`VBoxManage list vms  |cut -d'"' -f2`"; do
-        VBoxManage controlvm "$vmdesc" poweroff 2>> $LOG
+    for vmdesc in `VBoxManage list vms |awk -F \({\|}\) '{print $2}'`; do
+        echo $vmdesc
+	echo hello
+	VBoxManage controlvm "$vmdesc" poweroff 2>> $LOG
         sleep 1
         VBoxManage unregistervm "$vmdesc" --delete 2>> $LOG
     done    
 }
 function vboxmanage()
 {
+if [ ! "`VBoxManage list vms  |cut -d'"' -f2|grep -w "$VMNAME $NUM"`" ]; then
     # Create VM, set boot order
     echo "[*] Creating machine $VMNAME $NUM!"
     VBoxManage createvm --basefolder "$BASEFOLDER" --name "$VMNAME $NUM" --ostype $OSTYPE --register  1>> $LOG 2>> $ERRORS
@@ -109,42 +112,40 @@ function vboxmanage()
 
     # Start VM
     VBoxManage startvm "$VMNAME $NUM" || VBoxManage unregistervm --delete "$VMNAME $NUM"
+else
+    #VBoxManage list vms
+    echo $VMNAME $NUM already exists
+    
+fi
 }
 
 
 function manage()
 {
-# Add some default variables
-[ -z $VMNAME ] && VMNAME="${OSTYPE}"
-[ -z $RAM ] && RAM="200"
-[ -z $RANGE ] && RANGE="1"
 
-    if [ $RANGE -ge 5 ]; then
-        read -p "Create $RANGE machines? [Yy]`echo $'\n> '`" -n 1 -r; echo -e '\n'
-        if [[ $REPLY =~ ^[Yy]$ ]]; then
-            for ((NUM=1;NUM<=$RANGE;NUM++)); do
-		if [ ! "`VBoxManage list vms | cut -d'"' -f2 | grep -oh "$VMNAME $NUM"`" ]; then
-            vboxmanage
-		fi
-            done
-        fi
-    elif [ $RANGE -le 5 ]; then
+if [ $RANGE -ge 5 ]; then
+    read -p "Create $RANGE machines? [Yy]`echo $'\n> '`" -n 1 -r; echo -e '\n'
+    if [[ $REPLY =~ ^[Yy]$ ]]; then
         for ((NUM=1;NUM<=$RANGE;NUM++)); do
-	    if [ ! "`VBoxManage list vms | cut -d'"' -f2 | grep -oh "$VMNAME $NUM"`" ]; then
-            	vboxmanage
-	    fi
-        done
-    elif [ "`VBoxManage list vms | cut -d'"' -f2 | grep -oh "$VMNAME $RANGE"`" ]; then
-        destroysingle
+        vboxmanage
+	done
+    else
+	help
+	exit 0
     fi
+elif [ $RANGE -le 5 ]; then
+        for ((NUM=1;NUM<=$RANGE;NUM++)); do
+            vboxmanage
+	done
+fi
 }
 
 function help()
 {
     echo -e "\nusage: $0 <option> <name> <ram> <number>"
-    echo -e 'Example: ./build-vm centos web 10 -- Create ten vms with centos as template and "web 1" to "web 10" as name of vm'
-    echo -e 'Example: ./build-vm centos web 11 -- Terminate vms named "web 11".'
-    echo -e 'Example: ./build-vm destroyall -- Terminate ALL vms."\n'
+    echo -e 'Example: ./build-vm centos web 512 10 -- Create ten vms with centos as template and "web 1" to "web 10" as name of vm'
+    echo -e 'Example: ./build-vm destroyall -- destroy/purge/obliterate the vm from this planet'
+    echo -e 'Example: ./build-vm destroy "web 1" -- destroy "web 1"\n'
     echo "obsd centos debian backtrack gentoo archlinux export import start"
 }
 
@@ -156,9 +157,9 @@ fi
 case "$1" in
     archlinux)
     VMNAME=${2}
-    RANGE=${3}
+    RANGE=${4}
     OSTYPE=ArchLinux_64
-    RAM=2000
+    RAM=${3}
     ISO_REMOTE="http://ftp.lysator.liu.se/pub/archlinux/iso/2012.12.01/"
     ISO_NAME="archlinux-2012.12.01-dual.iso"
     iso
@@ -195,10 +196,10 @@ case "$1" in
     manage
     ;;
     backtrack)
-    RANGE=${3}
+    RANGE=${4}
     VMNAME=${2}
     OSTYPE=Debian_64
-    RAM=1000
+    RAM=${3}
     ISO_REMOTE="http://ftp.halifax.rwth-aachen.de/backtrack/"
     ISO_NAME="BT5R3-GNOME-64.iso"
     iso
@@ -206,9 +207,9 @@ case "$1" in
     ;;
     gentoo)
     VMNAME=${2}
-    RANGE=${3}
+    RANGE=${4}
     OSTYPE=Gentoo_64
-    RAM=2000
+    RAM=${3}
     ISO_REMOTE="http://gentoo.ussg.indiana.edu//releases/amd64/12.1/"
     ISO_NAME="livedvd-amd64-multilib-2012.1.iso"
     iso
@@ -228,6 +229,10 @@ case "$1" in
     ;;
     destroyall)
     destroyall
+    ;;
+    destroy)
+    destroy
+    VMNAME=${2}
     ;;
     *)
     help
