@@ -75,8 +75,6 @@ function destroysingle()
 function destroyall()
 {
     for vmdesc in `VBoxManage list vms |awk -F \({\|}\) '{print $2}'`; do
-        echo $vmdesc
-	echo hello
 	VBoxManage controlvm "$vmdesc" poweroff 2>> $LOG
         sleep 1
         VBoxManage unregistervm "$vmdesc" --delete 2>> $LOG
