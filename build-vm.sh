@@ -144,7 +144,9 @@ function help()
     echo -e 'Example: ./build-vm centos web 512 10 -- Create ten vms with centos as template and "web 1" to "web 10" as name of vm'
     echo -e 'Example: ./build-vm destroyall -- destroy/purge/obliterate the vm from this planet'
     echo -e 'Example: ./build-vm destroy "web 1" -- destroy "web 1"\n'
-    echo "obsd centos debian backtrack gentoo archlinux export import start"
+    echo "obsd centos debian backtrack gentoo archlinux export import start\n"
+    echo "Registred vms:"
+    VBoxManage list vms
 }
 
 if [ -z "$1" ];then
