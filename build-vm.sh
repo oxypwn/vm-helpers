@@ -37,7 +37,7 @@ which -s VBoxManage || exit 1
 function iso()
 {
 while [ ! -e $ISO_LOCAL/$ISO_NAME ]; do
-    /usr/bin/curl -L $ISO_REMOTE/$ISO_NAME -o $ISO_LOCAL/$ISO_NAME
+    /usr/bin/curl -fL $ISO_REMOTE/$ISO_NAME -o $ISO_LOCAL/$ISO_NAME
 done
 }
 
@@ -160,8 +160,8 @@ case "$1" in
     RANGE=${4}
     OSTYPE=ArchLinux_64
     RAM=${3}
-    ISO_REMOTE="http://ftp.lysator.liu.se/pub/archlinux/iso/2012.12.01/"
-    ISO_NAME="archlinux-2012.12.01-dual.iso"
+    ISO_REMOTE="http://archlinux.limun.org/iso/2013.01.04/"
+    ISO_NAME="archlinux-2013.01.04-dual.iso"
     iso
     manage
     ;; 
