@@ -205,6 +205,16 @@ case "$1" in
     iso
     manage
     ;;
+    tails)
+    VMNAME=${2}
+    RANGE=${4}
+    OSTYPE=Debian_64
+    RAM=${3}
+    ISO_REMOTE="http://dl.amnesia.boum.org/tails/stable/tails-i386-0.15"
+    ISO_NAME="tails-i386-0.15.iso"
+    iso
+    manage
+    ;;
     gentoo)
     VMNAME=${2}
     RANGE=${4}
