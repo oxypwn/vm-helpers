@@ -59,16 +59,16 @@ function start()
 VBoxManage startvm "$VMNAME"
 }
 
-function destroysingle()
+function destroy()
 {
-    read -p "Shutdown and delete $VMNAME $RANGE? [Yy]`echo $'\n> '`" -n 1 -r; echo -e '\n'
+    read -p "Shutdown and delete $VMNAME? [Yy]`echo $'\n> '`" -n 1 -r; echo -e '\n'
     if [[ ! $REPLY =~ ^[Yy]$ ]]; then
         help
         exit 1
     else
-        VBoxManage controlvm "$VMNAME $RANGE" poweroff 2>> $LOG && echo "[*] Powered off $VMNAME $RANGE!" || echo "[*] $VMNAME $RANGE is not running..."  2>> $LOG
+        VBoxManage controlvm "$VMNAME" poweroff 2>> $LOG && echo "[*] Powered off $VMNAME!" || echo "[*] $VMNAME is not running..."  2>> $LOG
         sleep 1
-        VBoxManage unregistervm "$VMNAME $RANGE" --delete 2>> $LOG && echo "[*] Unregistered and deleted $VMNAME $RANGE" || echo "[*] $VMNAME $RANGE does not exist..."
+        VBoxManage unregistervm "$VMNAME" --delete 2>> $LOG && echo "[*] Unregistered and deleted $VMNAME" || echo "[*] $VMNAME does not exist..."
     fi
 }
 
@@ -143,6 +143,7 @@ function help()
     echo -e "\nusage: $0 <option> <name> <ram> <number>"
     echo -e 'Example: ./build-vm centos web 512 10 -- Create ten vms with centos as template and "web 1" to "web 10" as name of vm'
     echo -e 'Example: ./build-vm destroyall -- destroy/purge/obliterate the vm from this planet'
+    echo -e 'Example: ./build-vm archlinux -- pull archlinux iso'
     echo -e 'Example: ./build-vm destroy "web 1" -- destroy "web 1"\n'
     echo "obsd centos debian backtrack gentoo archlinux export import start\n"
     echo "Registred vms:"
@@ -241,8 +242,8 @@ case "$1" in
     destroyall
     ;;
     destroy)
-    destroy
     VMNAME=${2}
+    destroy
     ;;
     *)
     help
