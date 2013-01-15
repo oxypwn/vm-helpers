@@ -211,8 +211,8 @@ case "$1" in
     RANGE=${4}
     OSTYPE=Debian_64
     RAM=${3}
-    ISO_REMOTE="http://dl.amnesia.boum.org/tails/stable/tails-i386-0.15"
-    ISO_NAME="tails-i386-0.15.iso"
+    ISO_REMOTE="http://dl.amnesia.boum.org/tails/stable/tails-i386-0.16/"
+    ISO_NAME="tails-i386-0.16.iso"
     iso
     manage
     ;;
