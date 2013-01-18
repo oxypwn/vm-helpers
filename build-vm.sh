@@ -90,7 +90,7 @@ if [ ! "`VBoxManage list vms  |cut -d'"' -f2|grep -w "$VMNAME $NUM"`" ]; then
 
     # setup first DHCP enabled interface, depends on hostname
     if [ "`hostname -s`" = stewie ]; then
-        VBoxManage modifyvm "$VMNAME $NUM" --nic1 bridged --bridgeadapter1 "en0: Ethernet" --nictype1 82540EM --cableconnected1 on
+        VBoxManage modifyvm "$VMNAME $NUM" --nic1 bridged --bridgeadapter1 "enp1s0" --nictype1 82540EM --cableconnected1 on
     else
         VBoxManage modifyvm "$VMNAME $NUM" --nic1 bridged --bridgeadapter1 "p4p1" --nictype1 82540EM --cableconnected1 on
     fi
