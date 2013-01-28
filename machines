@@ -1,0 +1,5 @@
+vm_beatbox() {
+    mac="de:ad:be:ef:00:09"
+    options=(usecdrom)
+}
+
