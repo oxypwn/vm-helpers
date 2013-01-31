@@ -3,3 +3,12 @@ vm_beatbox() {
     options=(usecdrom)
 }
 
+vm_debian() {
+    mac="de:ad:be:ef:00:09"
+    options=(usecdrom)
+    #iso_remote_root="http://ftp.lysator.liu.se/pub/archlinux/iso/2013.01.04/"
+    #iso_name=archlinux-2013.01.04-dual.iso
+    
+
+}
+

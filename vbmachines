@@ -1,0 +1,23 @@
+vm_beatbox() {
+    name="arch"
+    mac="de:ad:be:ef:00:09"
+    mem="1024"
+    ostype="ArchLinux_64"
+    iso_remote_root="http://ftp.lysator.liu.se/pub/archlinux/iso/2013.01.04/"
+    iso_name="archlinux-2013.01.04-dual.iso"
+    create
+}
+
+
+vm_one() {
+    name="webserver"
+    mac="de:ad:be:ef:00:09"
+    mem="1024"
+    ostype="ArchLinux_64"
+    iso_remote_root="http://ftp.lysator.liu.se/pub/archlinux/iso/2013.01.04/"
+    iso_name="archlinux-2013.01.04-dual.iso"
+    download_iso
+    create
+}
+
+

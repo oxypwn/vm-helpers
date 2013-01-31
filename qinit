@@ -18,17 +18,27 @@
 #
 
 ### Paths ################################
-machines=${XDG_CONFIG_HOME:-$HOME/.config}/qemu/machines
-isoroot=/tmp
+#machines=${XDG_CONFIG_HOME:-$HOME/.config}/qemu/machines
+machines=$HOME/Dropbox/vm-helpers/machines
+iso_local_root=/tmp
 imgroot=$HOME/qemu-img
 
 ### Defaults #############################
 mem=(-m 1024)
 cpus=(-cpu Nehalem -smp sockets=1,cores=2,threads=2)
-iso=$isoroot/archlinux.iso
+iso_remote_root="http://ftp.lysator.liu.se/pub/archlinux/iso/2013.01.04/"
+iso_name=archlinux-2013.01.04-dual.iso
 ### Launcher #############################
 
 . "$machines"
+
+
+function download_iso()
+{
+while [ ! -e $iso_local_root/$iso_name ]; do
+    /usr/bin/curl -fL $iso_remote_root/$iso_name -o $iso_local_root/$iso_name
+done
+}
 
 while getopts 'cd:' flag; do
   case $flag in
@@ -58,6 +68,8 @@ net=(-net vde -net nic,model=virtio,macaddr="$mac")
 opts+=("${cpus[@]}" "${mem[@]}" "${net[@]}")
 
 if (( usecdrom )); then
+  download_iso
+  iso=$iso_local_root/$iso_name
   opts+=(-cdrom "$iso" -boot d)
 fi
 
