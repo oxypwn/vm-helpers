@@ -13,7 +13,7 @@
 #
 # If unspecified:
 #   ${drives[@]}: will match all of "$imgroot/$vm".*.qcow2
-#
+# qemu-img create -f qcow2 ~/qemu-img/pcbsd.test.qcow2 50G
 # Example: qinit -c beatbox 
 #
 
@@ -24,17 +24,26 @@ iso_local_root=/tmp
 imgroot=$HOME/qemu-img
 
 ### Defaults #############################
-mem=(-m 1024)
-cpus=(-cpu Nehalem -smp sockets=1,cores=2,threads=2)
-iso_remote_root="http://ftp.lysator.liu.se/pub/archlinux/iso/2013.01.04/"
-iso_name=archlinux-2013.01.04-dual.iso
+mem=(-m 2048)
+cpus=(-cpu qemu64 -smp sockets=1,cores=2,threads=2)
+vga=(-vga std)
+iso_remote_root="http://ftp.lysator.liu.se/pub/archlinux/iso/2013.04.01"
+iso_name=archlinux-2013.04.01-dual.iso
+version="base"
+mac=`(date; cat /proc/interrupts) | md5sum | sed -r 's/^(.{10}).*$/\1/; s/([0-9a-f]{2})/\1:/g; s/:$//;'`
 ### Launcher #############################
 
 . "$machines"
 
 
-function download_iso()
+function presetup()
 {
+if [ ! -d "$imgroot" ]; 
+    then mkdir -p "$imgroot";
+fi
+while [ ! -e "$imgroot/$vm".*.qcow2 ]; do
+    qemu-img create -f qcow2 "$imgroot/$vm"."$version".qcow2 50G
+done
 while [ ! -e $iso_local_root/$iso_name ]; do
     /usr/bin/curl -fL $iso_remote_root/$iso_name -o $iso_local_root/$iso_name
 done
@@ -65,10 +74,10 @@ vm_$vm
 cdrom=(-cdrom "$iso" -boot d)
 net=(-net vde -net nic,model=virtio,macaddr="$mac")
 
-opts+=("${cpus[@]}" "${mem[@]}" "${net[@]}")
+opts+=("${cpus[@]}" "${mem[@]}" "${net[@]}" "${vga[@]}" "${options[@]}")
 
 if (( usecdrom )); then
-  download_iso
+  presetup
   iso=$iso_local_root/$iso_name
   opts+=(-cdrom "$iso" -boot d)
 fi
@@ -82,5 +91,8 @@ else
   opts+=("${drives[@]}")
 fi
 
-exec kvm "${opts[@]}" "$@"
+
+#exec kvm "${opts[@]}" "$@"
+
+exec qemu-system-x86_64 "${opts[@]}" "$@"
 

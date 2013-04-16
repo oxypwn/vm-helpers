@@ -23,7 +23,7 @@
 # Paths
 #machines=${XDG_CONFIG_HOME:-$HOME/.config}/vbinit/machines
 machines=$HOME/Dropbox/vm-helpers/vbmachines
-iso_local_root=/tmp
+iso_local_root=$Home/Downloads
 img_local_root=$HOME/.Virtualbox
 
 

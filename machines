@@ -1,13 +1,31 @@
-vm_beatbox() {
+vm_archlinux() {
     mac="de:ad:be:ef:00:09"
-    options=(usecdrom)
+    options=()
+    drives=(-hda "$imgroot/$vm"."$version".qcow2)
 }
 
-vm_debian() {
-    mac="de:ad:be:ef:00:09"
-    options=(usecdrom)
-    #iso_remote_root="http://ftp.lysator.liu.se/pub/archlinux/iso/2013.01.04/"
-    #iso_name=archlinux-2013.01.04-dual.iso
+vm_pcbsd() {
+    version="9.1"
+    mac="de:ad:be:ef:00:19"
+    cpus=()
+    vga=(-vga std)
+    drives=(-hda "$imgroot/$vm"."$version".qcow2)
+    options=(-localtime -soundhw sb16)
+    iso_remote_root="ftp://ftp.df.lth.se/pub/PCBSD/9.1/amd64/"
+    iso_name=PCBSD9.1-x64-DVD.iso
+    
+
+}
+
+vm_centos() {
+    version=testing
+    mac="de:ad:be:ef:01:19"
+    cpus=()
+    vga=(-vga std)
+    drives=(-hda "$imgroot/$vm"."$version".qcow2)
+    options=(-localtime -soundhw sb16)
+    iso_remote_root="http://centos.mirror.freedomvoice.com/6.3/isos/x86_64/"
+    iso_name="CentOS-6.3-x86_64-netinstall.iso"
     
 
 }
